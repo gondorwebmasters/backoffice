@@ -6,8 +6,8 @@ import { useState } from "react";
 import { useSession } from "@/components/layout/session-provider";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Dropdown } from "@/components/ui/dropdown";
 import { Field, Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
 import { useToast } from "@/components/ui/toast";
 import type { User } from "@/lib/graphql/types";
 import { ADMIT_USER_TO_COMPANY, DELETE_USER, UPDATE_USER } from "@/lib/graphql/users";
@@ -31,6 +31,7 @@ export function ProfileTab({ member, onChanged, onDeleted }: ProfileTabProps) {
     nickname: member.nickname,
     phoneNumber: member.phoneNumber ?? "",
     role: member.contextRole ?? "standard",
+    isActive: member.isActive !== false,
     isBlocked: Boolean(member.isBlocked),
   });
 
@@ -52,6 +53,7 @@ export function ProfileTab({ member, onChanged, onDeleted }: ProfileTabProps) {
           nickname: form.nickname,
           phoneNumber: form.phoneNumber || undefined,
           role: form.role,
+          isActive: form.isActive,
           isBlocked: form.isBlocked,
         },
       },
@@ -122,21 +124,32 @@ export function ProfileTab({ member, onChanged, onDeleted }: ProfileTabProps) {
         </Field>
       </div>
       <Field label="Rol">
-        <Select
+        <Dropdown
           options={ROLE_OPTIONS}
           value={form.role}
-          onChange={(event) => set("role", event.target.value as typeof form.role)}
+          onChange={(value) => set("role", value as typeof form.role)}
         />
       </Field>
-      <label className="flex items-center gap-2.5 text-sm text-zinc-600">
-        <input
-          type="checkbox"
-          checked={form.isBlocked}
-          onChange={(event) => set("isBlocked", event.target.checked)}
-          className="h-4 w-4 rounded border-zinc-300 accent-zinc-900"
-        />
-        Bloquear acceso a la app
-      </label>
+      <div className="space-y-2.5">
+        <label className="flex items-center gap-2.5 text-sm text-zinc-600">
+          <input
+            type="checkbox"
+            checked={form.isActive}
+            onChange={(event) => set("isActive", event.target.checked)}
+            className="h-4 w-4 rounded border-zinc-300 accent-zinc-900"
+          />
+          Miembro activo
+        </label>
+        <label className="flex items-center gap-2.5 text-sm text-zinc-600">
+          <input
+            type="checkbox"
+            checked={form.isBlocked}
+            onChange={(event) => set("isBlocked", event.target.checked)}
+            className="h-4 w-4 rounded border-zinc-300 accent-zinc-900"
+          />
+          Bloquear acceso a la app
+        </label>
+      </div>
 
       <div className="flex items-center justify-between border-t border-zinc-100 pt-5">
         <Button variant="danger" size="sm" onClick={() => setConfirmDelete(true)}>

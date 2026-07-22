@@ -20,6 +20,7 @@ interface DropdownProps {
   searchable?: boolean;
   /** Permite volver a "sin selección" eligiendo el placeholder. */
   clearable?: boolean;
+  disabled?: boolean;
   className?: string;
 }
 
@@ -35,6 +36,7 @@ export function Dropdown({
   placeholder = "Seleccionar…",
   searchable = false,
   clearable = false,
+  disabled = false,
   className,
 }: DropdownProps) {
   const [open, setOpen] = useState(false);
@@ -76,11 +78,13 @@ export function Dropdown({
       <button
         type="button"
         onClick={() => setOpen((current) => !current)}
+        disabled={disabled}
         aria-haspopup="listbox"
         aria-expanded={open}
         className={cn(
           "flex h-9 w-full items-center justify-between gap-2 rounded-lg border border-zinc-200 bg-white px-3 text-sm shadow-sm transition-colors hover:border-zinc-300",
           selected ? "text-zinc-900" : "text-zinc-400",
+          disabled && "pointer-events-none opacity-50",
         )}
       >
         <span className="truncate">{selected?.label ?? placeholder}</span>

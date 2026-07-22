@@ -1,5 +1,7 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { usePathname } from "next/navigation";
 import {
   createContext,
   useCallback,
@@ -12,6 +14,8 @@ import {
 import { cn } from "@/lib/cn";
 
 import { CommandPalette } from "./command-palette";
+import { CompanyBackdrop } from "./company-backdrop";
+import { SessionSplash } from "./session-splash";
 import { Sidebar } from "./sidebar";
 import { Topbar } from "./topbar";
 
@@ -38,6 +42,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   // se aplica tras montar.
   const [collapsed, setCollapsed] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     try {
@@ -74,10 +79,31 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <ShellContext.Provider value={{ collapsed, toggleCollapsed, openPalette }}>
+      <SessionSplash />
+      <CompanyBackdrop />
       <Sidebar />
-      <div className={cn("transition-[padding] duration-200", collapsed ? "pl-24" : "pl-72")}>
+      <div className={cn("relative transition-[padding] duration-200", collapsed ? "pl-24" : "pl-72")}>
         <Topbar />
-        <main className="mx-auto max-w-7xl px-10 py-8">{children}</main>
+        <main className="mx-auto max-w-7xl px-10 py-8">
+          {/*
+            Solo opacity, nunca x/y/scale: cualquier motion value de
+            transform (incluido "y") hace que framer-motion fije un
+            `transform` inline en este div, y eso convierte a CUALQUIER
+            descendiente `position: fixed` (SlideOver, ConfirmDialog…) en
+            relativo a este contenedor en vez de al viewport — se ven
+            "pantallazos" de esos paneles mal posicionados. Con opacity a
+            secas framer-motion nunca toca `transform`, así que los overlays
+            fixed de cada página quedan intactos.
+          */}
+          <motion.div
+            key={pathname}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {children}
+          </motion.div>
+        </main>
       </div>
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
     </ShellContext.Provider>

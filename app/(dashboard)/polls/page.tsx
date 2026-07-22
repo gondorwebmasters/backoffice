@@ -6,8 +6,10 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Field, Input, Textarea } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
+import { PageShell } from "@/components/ui/sticky-header";
 import { SlideOver } from "@/components/ui/slide-over";
 import { useToast } from "@/components/ui/toast";
 import { formatDate } from "@/lib/format";
@@ -105,33 +107,37 @@ export default function PollsPage() {
 
   return (
     <>
-      <PageHeader
-        title="Encuestas"
-        subtitle="Consultas a los miembros y resultados"
-        actions={
-          <Button variant="primary" onClick={() => setCreating(true)}>
-            <Plus size={15} strokeWidth={1.5} />
-            Nueva encuesta
-          </Button>
+      <PageShell
+        header={
+          <PageHeader
+            title="Encuestas"
+            subtitle="Consultas a los miembros y resultados"
+            actions={
+              <Button variant="primary" onClick={() => setCreating(true)}>
+                <Plus size={15} strokeWidth={1.5} />
+                Nueva encuesta
+              </Button>
+            }
+          />
         }
-      />
-
-      {loading && polls.length === 0 ? (
-        <div className="grid gap-4 lg:grid-cols-2">
-          <div className="h-40 animate-pulse rounded-xl bg-zinc-100" />
-          <div className="h-40 animate-pulse rounded-xl bg-zinc-100" />
-        </div>
-      ) : polls.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-zinc-200 py-16 text-center text-sm text-zinc-400">
-          Aún no hay encuestas
-        </p>
-      ) : (
-        <div className="grid gap-4 lg:grid-cols-2">
-          {polls.map((poll) => (
-            <PollCard key={poll.id} poll={poll} onRemove={() => setRemoving(poll)} />
-          ))}
-        </div>
-      )}
+      >
+        {loading && polls.length === 0 ? (
+          <div className="grid gap-4 lg:grid-cols-2">
+            <div className="h-40 animate-pulse rounded-xl bg-zinc-100" />
+            <div className="h-40 animate-pulse rounded-xl bg-zinc-100" />
+          </div>
+        ) : polls.length === 0 ? (
+          <p className="rounded-xl border border-dashed border-zinc-200 py-16 text-center text-sm text-zinc-400">
+            Aún no hay encuestas
+          </p>
+        ) : (
+          <div className="grid gap-4 lg:grid-cols-2">
+            {polls.map((poll) => (
+              <PollCard key={poll.id} poll={poll} onRemove={() => setRemoving(poll)} />
+            ))}
+          </div>
+        )}
+      </PageShell>
 
       <SlideOver
         open={creating}
@@ -164,10 +170,9 @@ export default function PollsPage() {
             />
           </Field>
           <Field label="Fecha de cierre">
-            <Input
-              type="date"
+            <DatePicker
               value={form.endDate}
-              onChange={(event) => setForm({ ...form, endDate: event.target.value })}
+              onChange={(value) => setForm({ ...form, endDate: value })}
             />
           </Field>
         </div>

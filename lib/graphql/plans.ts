@@ -47,6 +47,9 @@ export const GET_PLAN_WITH_SUBSCRIPTIONS = gql`
           cancelAtPeriodEnd
           user {
             id
+            name
+            surname
+            nickname
           }
         }
       }

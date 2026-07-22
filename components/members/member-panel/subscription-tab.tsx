@@ -5,8 +5,8 @@ import { useState } from "react";
 
 import { BadgeDot } from "@/components/ui/badge-dot";
 import { Button } from "@/components/ui/button";
+import { Dropdown } from "@/components/ui/dropdown";
 import { Field, Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
 import { useToast } from "@/components/ui/toast";
 import { formatCents, formatDate } from "@/lib/format";
 import { LIST_PLANS } from "@/lib/graphql/plans";
@@ -198,14 +198,15 @@ export function SubscriptionTab({ userId }: { userId: string }) {
         <div className="flex items-end gap-3 border-t border-zinc-100 pt-5">
           <div className="flex-1">
             <Field label="Asignar plan">
-              <Select
+              <Dropdown
                 options={(plans.data?.listPlans?.plans ?? []).map((plan) => ({
                   value: plan.id,
                   label: `${plan.name} · ${formatCents(plan.amount, plan.currency)}`,
                 }))}
                 placeholder="Selecciona un plan…"
+                searchable
                 value={planId}
-                onChange={(event) => setPlanId(event.target.value)}
+                onChange={setPlanId}
               />
             </Field>
           </div>

@@ -12,9 +12,9 @@
 @layer base {
   :root {
     /* Acento — la sobreescribe el ThemeProvider según el preset elegido */
-    --primary: 99 102 241; /* #6366F1 índigo */
+    --primary: 239 68 68; /* #EF4444 rojo */
     --primary-fg: 255 255 255;
-    --primary-chart: 99 102 241;
+    --primary-chart: 239 68 68;
 
     --background: 241 245 249; /* #F1F5F9 */
     --surface: 255 255 255;
@@ -50,7 +50,7 @@
   .dark {
     --background: 15 23 42; /* #0F172A */
     --surface: 30 41 59; /* #1E293B */
-    --primary-chart: 129 140 248; /* #818CF8 — lo ajusta el ThemeProvider por preset */
+    --primary-chart: 248 113 113; /* #F87171 — lo ajusta el ThemeProvider por preset */
 
     /* Escala invertida: zinc-50 sigue siendo "casi fondo" y zinc-900 "texto" */
     --z-50: 36 48 68;
@@ -87,9 +87,31 @@
   body {
     @apply bg-background text-zinc-900;
   }
+
+  /* Scrollbars invisibles — el scroll sigue funcionando, solo se oculta la pista */
+  * {
+    scrollbar-width: none;
+  }
+
+  *::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
   ::selection {
     background-color: rgb(var(--primary));
     color: rgb(var(--primary-fg));
+  }
+
+  @keyframes cell-in {
+    from {
+      opacity: 0;
+      transform: scale(0.85);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

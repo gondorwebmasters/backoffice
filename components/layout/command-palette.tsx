@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@apollo/client";
+import { AnimatePresence, motion } from "framer-motion";
 import { CornerDownLeft, Search, UserRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -83,8 +84,6 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
     setHighlighted(0);
   }, [items.length, open]);
 
-  if (!open) return null;
-
   const run = (item: PaletteItem) => {
     onClose();
     item.action();
@@ -109,9 +108,24 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
   let lastGroup: string | null = null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-[15vh]">
-      <div className="absolute inset-0 bg-zinc-950/30 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-pop">
+    <AnimatePresence>
+      {open ? (
+        <div className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-[15vh]">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="absolute inset-0 bg-zinc-950/30 backdrop-blur-sm"
+            onClick={onClose}
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.97, y: -8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.97, y: -8 }}
+            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+            className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-pop"
+          >
         <div className="flex items-center gap-2.5 border-b border-zinc-100 px-4">
           <Search size={15} strokeWidth={1.5} className="shrink-0 text-zinc-400" />
           <input
@@ -176,7 +190,9 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
           <span>↵ abrir</span>
           <span>esc cerrar</span>
         </div>
-      </div>
-    </div>
+          </motion.div>
+        </div>
+      ) : null}
+    </AnimatePresence>
   );
 }

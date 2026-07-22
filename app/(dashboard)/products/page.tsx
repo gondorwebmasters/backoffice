@@ -9,22 +9,29 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { DataTable, type Column } from "@/components/ui/data-table";
 import { Field, Input, Textarea } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
+import { Pagination } from "@/components/ui/pagination";
+import { PageShell } from "@/components/ui/sticky-header";
 import { SlideOver } from "@/components/ui/slide-over";
 import { useToast } from "@/components/ui/toast";
 import { CREATE_PRODUCT, GET_PRODUCTS, REMOVE_PRODUCT } from "@/lib/graphql/products";
 import type { Product } from "@/lib/graphql/types";
+
+const PAGE_SIZE = 10;
 
 export default function ProductsPage() {
   const toast = useToast();
   const [creating, setCreating] = useState(false);
   const [removing, setRemoving] = useState<Product | null>(null);
   const [form, setForm] = useState({ name: "", description: "", price: "" });
+  const [page, setPage] = useState(0);
 
   const { data, loading, refetch } = useQuery<{ getProducts: { products: Product[] | null } }>(GET_PRODUCTS);
   const [createProduct, createState] = useMutation(CREATE_PRODUCT);
   const [removeProduct, removeState] = useMutation(REMOVE_PRODUCT);
 
-  const products = data?.getProducts?.products ?? [];
+  const allProducts = data?.getProducts?.products ?? [];
+  const pageCount = Math.max(Math.ceil(allProducts.length / PAGE_SIZE), 1);
+  const products = allProducts.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
 
   const handleCreate = async () => {
     const { data: result } = await createProduct({
@@ -104,24 +111,29 @@ export default function ProductsPage() {
 
   return (
     <>
-      <PageHeader
-        title="Productos"
-        subtitle="Tienda de la empresa"
-        actions={
-          <Button variant="primary" onClick={() => setCreating(true)}>
-            <Plus size={15} strokeWidth={1.5} />
-            Nuevo producto
-          </Button>
+      <PageShell
+        header={
+          <PageHeader
+            title="Productos"
+            subtitle="Tienda de la empresa"
+            actions={
+              <Button variant="primary" onClick={() => setCreating(true)}>
+                <Plus size={15} strokeWidth={1.5} />
+                Nuevo producto
+              </Button>
+            }
+          />
         }
-      />
-
-      <DataTable
-        columns={columns}
-        rows={products}
-        rowKey={(product) => product.id}
-        loading={loading}
-        emptyMessage="Aún no hay productos en la tienda"
-      />
+      >
+        <DataTable
+          columns={columns}
+          rows={products}
+          rowKey={(product) => product.id}
+          loading={loading}
+          emptyMessage="Aún no hay productos en la tienda"
+        />
+        <Pagination page={page} pageCount={pageCount} onChange={setPage} totalLabel={`${allProducts.length} productos`} />
+      </PageShell>
 
       <SlideOver
         open={creating}

@@ -1,14 +1,16 @@
 "use client";
 
 import { useLazyQuery, useQuery } from "@apollo/client";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { MemberPanel } from "@/components/members/member-panel";
 import { BadgeDot } from "@/components/ui/badge-dot";
 import { DataTable, type Column } from "@/components/ui/data-table";
+import { Pagination } from "@/components/ui/pagination";
 import { PageHeader } from "@/components/ui/page-header";
+import { PageShell } from "@/components/ui/sticky-header";
 import { Dropdown } from "@/components/ui/dropdown";
-import { formatCents, formatDate } from "@/lib/format";
+import { formatCents, formatDate, fullName } from "@/lib/format";
 import { GET_PLAN_WITH_SUBSCRIPTIONS, LIST_PLANS } from "@/lib/graphql/plans";
 import { GET_SUBSCRIPTIONS_STATS } from "@/lib/graphql/stats";
 import type { Plan, Subscription, SubscriptionsStat, User } from "@/lib/graphql/types";
@@ -25,8 +27,27 @@ const STATUS_META: Record<string, { label: string; tone: "positive" | "neutral" 
   incomplete_expired: { label: "Expirada", tone: "muted" },
 };
 
+// La tarjeta de resumen ("stats") solo cuenta suscripciones activas — si la
+// tabla mostrase todos los estados por defecto (incl. canceladas/expiradas),
+// el número de la tarjeta y el de la lista no coincidirían nunca. "Activas"
+// como filtro inicial es lo que hace que ambos números cuadren; el resto de
+// estados sigue disponible para auditar el histórico.
+const STATUS_FILTERS = [
+  { value: "active", label: "Activas" },
+  { value: "", label: "Todos los estados" },
+  { value: "trialing", label: "En prueba" },
+  { value: "past_due", label: "Pago vencido" },
+  { value: "unpaid", label: "Impagadas" },
+  { value: "paused", label: "Pausadas" },
+  { value: "canceled", label: "Canceladas" },
+];
+
+const PAGE_SIZE = 10;
+
 export default function SubscriptionsPage() {
   const [planId, setPlanId] = useState("");
+  const [statusFilter, setStatusFilter] = useState("active");
+  const [page, setPage] = useState(0);
   const [member, setMember] = useState<User | null>(null);
 
   const stats = useQuery<{ getSubscriptionsStats: { stats: SubscriptionsStat[] } }>(GET_SUBSCRIPTIONS_STATS);
@@ -37,8 +58,20 @@ export default function SubscriptionsPage() {
   });
   const [findUser] = useLazyQuery<{ findUser: { user: User | null } }>(FIND_USER);
 
-  const subscriptions = planDetail.data?.getPlan?.plan?.subscriptions ?? [];
+  const allSubscriptions = planDetail.data?.getPlan?.plan?.subscriptions ?? [];
+  const filteredSubscriptions = useMemo(
+    () => (statusFilter ? allSubscriptions.filter((sub) => sub.status === statusFilter) : allSubscriptions),
+    [allSubscriptions, statusFilter],
+  );
+  const pageCount = Math.max(Math.ceil(filteredSubscriptions.length / PAGE_SIZE), 1);
+  const subscriptions = filteredSubscriptions.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
   const totalByPlan = stats.data?.getSubscriptionsStats?.stats ?? [];
+
+  const selectPlan = (id: string) => {
+    setPlanId(id);
+    setStatusFilter("active");
+    setPage(0);
+  };
 
   const openMember = async (subscription: Subscription) => {
     if (!subscription.user?.id) return;
@@ -51,7 +84,7 @@ export default function SubscriptionsPage() {
       key: "user",
       header: "Miembro",
       render: (subscription) => (
-        <span className="font-mono text-xs text-zinc-500">{subscription.user?.id ?? "—"}</span>
+        <span className="text-zinc-700">{subscription.user ? fullName(subscription.user) : "—"}</span>
       ),
     },
     {
@@ -90,51 +123,79 @@ export default function SubscriptionsPage() {
 
   return (
     <>
-      <PageHeader title="Suscripciones" subtitle="Estado de las suscripciones por plan" />
+      <PageShell
+        header={
+          <>
+            <PageHeader title="Suscripciones" subtitle="Estado de las suscripciones por plan" />
 
-      <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {totalByPlan.map((stat) => (
-          <button
-            key={stat.planId}
-            onClick={() => setPlanId(stat.planId)}
-            className={`rounded-2xl border bg-white p-5 text-left shadow-card transition-all hover:shadow-card-hover ${
-              planId === stat.planId ? "border-primary ring-1 ring-primary/30" : "border-zinc-200 hover:border-zinc-400"
-            }`}
-          >
-            <p className="truncate text-xs font-medium uppercase tracking-wider text-zinc-400">{stat.planName}</p>
-            <p className="mt-1.5 text-2xl font-semibold tracking-tight text-zinc-900">{stat.count}</p>
-            <p className="text-xs text-zinc-400">suscripciones</p>
-          </button>
-        ))}
-      </div>
+            <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+              {totalByPlan.map((stat) => (
+                <button
+                  key={stat.planId}
+                  onClick={() => selectPlan(stat.planId)}
+                  className={`rounded-2xl border bg-white p-5 text-left shadow-card transition-all hover:shadow-card-hover ${
+                    planId === stat.planId ? "border-primary ring-1 ring-primary/30" : "border-zinc-200 hover:border-zinc-400"
+                  }`}
+                >
+                  <p className="truncate text-xs font-medium uppercase tracking-wider text-zinc-400">{stat.planName}</p>
+                  <p className="mt-1.5 text-2xl font-semibold tracking-tight text-zinc-900">{stat.count}</p>
+                  <p className="text-xs text-zinc-400">suscripciones activas</p>
+                </button>
+              ))}
+            </div>
 
-      <div className="mb-4 w-72">
-        <Dropdown
-          options={(plans.data?.listPlans?.plans ?? []).map((plan) => ({
-            value: plan.id,
-            label: `${plan.name} · ${formatCents(plan.amount, plan.currency)}`,
-          }))}
-          placeholder="Selecciona un plan para ver sus suscripciones…"
-          value={planId}
-          onChange={setPlanId}
-          searchable
-        />
-      </div>
-
-      {planId ? (
-        <DataTable
-          columns={columns}
-          rows={subscriptions}
-          rowKey={(subscription) => subscription.id}
-          onRowClick={openMember}
-          loading={planDetail.loading}
-          emptyMessage="Este plan no tiene suscripciones"
-        />
-      ) : (
-        <p className="rounded-xl border border-dashed border-zinc-200 py-16 text-center text-sm text-zinc-400">
-          Elige un plan para ver el detalle de sus suscripciones
-        </p>
-      )}
+            <div className="mb-4 flex flex-wrap items-center gap-3">
+              <div className="w-72">
+                <Dropdown
+                  options={(plans.data?.listPlans?.plans ?? []).map((plan) => ({
+                    value: plan.id,
+                    label: `${plan.name} · ${formatCents(plan.amount, plan.currency)}`,
+                  }))}
+                  placeholder="Selecciona un plan para ver sus suscripciones…"
+                  value={planId}
+                  onChange={selectPlan}
+                  searchable
+                />
+              </div>
+              {planId ? (
+                <div className="w-48">
+                  <Dropdown
+                    options={STATUS_FILTERS}
+                    value={statusFilter}
+                    onChange={(value) => {
+                      setStatusFilter(value);
+                      setPage(0);
+                    }}
+                  />
+                </div>
+              ) : null}
+            </div>
+          </>
+        }
+      >
+        {planId ? (
+          <>
+            <DataTable
+              columns={columns}
+              rows={subscriptions}
+              rowKey={(subscription) => subscription.id}
+              onRowClick={openMember}
+              loading={planDetail.loading}
+              emptyMessage="No hay suscripciones que coincidan con el filtro"
+            />
+            <Pagination
+              page={page}
+              pageCount={pageCount}
+              onChange={setPage}
+              totalLabel={`${filteredSubscriptions.length} suscripciones`}
+            />
+          </>
+        ) : (
+          <p className="rounded-xl border border-dashed border-zinc-200 py-16 text-center text-sm text-zinc-400">
+            Elige un plan para ver el detalle de sus suscripciones
+          </p>
+        )}
+      </PageShell>
 
       <MemberPanel member={member} onClose={() => setMember(null)} onChanged={() => planDetail.refetch()} />
     </>

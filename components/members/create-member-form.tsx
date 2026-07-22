@@ -4,8 +4,8 @@ import { useMutation } from "@apollo/client";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Dropdown } from "@/components/ui/dropdown";
 import { Field, Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
 import { SlideOver } from "@/components/ui/slide-over";
 import { useToast } from "@/components/ui/toast";
 import { CREATE_USER } from "@/lib/graphql/users";
@@ -70,7 +70,7 @@ export function CreateMemberForm({ open, onClose, onCreated }: CreateMemberFormP
           <Input type="password" value={form.password} onChange={(event) => set("password")(event.target.value)} />
         </Field>
         <Field label="Rol">
-          <Select options={ROLE_OPTIONS} value={form.role} onChange={(event) => set("role")(event.target.value)} />
+          <Dropdown options={ROLE_OPTIONS} value={form.role} onChange={set("role")} />
         </Field>
       </div>
     </SlideOver>

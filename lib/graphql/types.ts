@@ -130,7 +130,7 @@ export interface Plan {
 export interface Subscription {
   id: string;
   created_at: string;
-  user?: { id: string } | null;
+  user?: { id: string; name?: string | null; surname?: string | null; nickname?: string } | null;
   plan: Plan;
   status: SubscriptionStatus;
   currentPeriodStart?: string | null;
@@ -189,6 +189,21 @@ export interface Product {
   description: string;
   price: number;
   pictures?: PictureUrl[] | null;
+}
+
+export interface Promotion {
+  id: string;
+  title: string;
+  description: string;
+  discountTag: string;
+  originalPrice: number;
+  newPrice: number;
+  expiresAt: string;
+  accentColor?: string | null;
+  isHero: boolean;
+  isActive: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Poll {

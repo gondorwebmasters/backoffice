@@ -9,6 +9,7 @@ import { SchedulePanel } from "@/components/calendar/schedule-panel";
 import { WeekView } from "@/components/calendar/week-view";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
+import { PageShell } from "@/components/ui/sticky-header";
 import { addDays, startOfWeek, toISODate } from "@/lib/format";
 import { GET_SCHEDULES_RANGE } from "@/lib/graphql/schedules";
 import type { Schedule } from "@/lib/graphql/types";
@@ -38,31 +39,37 @@ export default function CalendarPage() {
 
   return (
     <>
-      <PageHeader
-        title="Calendario"
-        subtitle="Clases y horarios de la semana"
-        actions={
-          <Button variant="primary" onClick={() => setCreating(true)}>
-            <Plus size={15} strokeWidth={1.5} />
-            Nueva clase
-          </Button>
+      <PageShell
+        header={
+          <>
+            <PageHeader
+              title="Calendario"
+              subtitle="Clases y horarios de la semana"
+              actions={
+                <Button variant="primary" onClick={() => setCreating(true)}>
+                  <Plus size={15} strokeWidth={1.5} />
+                  Nueva clase
+                </Button>
+              }
+            />
+
+            <div className="mb-5 flex items-center gap-3">
+              <Button size="sm" variant="ghost" onClick={() => setWeekStart((date) => addDays(date, -7))}>
+                <ChevronLeft size={15} strokeWidth={1.5} />
+              </Button>
+              <span className="min-w-48 text-center text-sm font-medium capitalize text-zinc-900">{weekLabel}</span>
+              <Button size="sm" variant="ghost" onClick={() => setWeekStart((date) => addDays(date, 7))}>
+                <ChevronRight size={15} strokeWidth={1.5} />
+              </Button>
+              <Button size="sm" onClick={() => setWeekStart(startOfWeek(new Date()))}>
+                Hoy
+              </Button>
+            </div>
+          </>
         }
-      />
-
-      <div className="mb-5 flex items-center gap-3">
-        <Button size="sm" variant="ghost" onClick={() => setWeekStart((date) => addDays(date, -7))}>
-          <ChevronLeft size={15} strokeWidth={1.5} />
-        </Button>
-        <span className="min-w-48 text-center text-sm font-medium capitalize text-zinc-900">{weekLabel}</span>
-        <Button size="sm" variant="ghost" onClick={() => setWeekStart((date) => addDays(date, 7))}>
-          <ChevronRight size={15} strokeWidth={1.5} />
-        </Button>
-        <Button size="sm" onClick={() => setWeekStart(startOfWeek(new Date()))}>
-          Hoy
-        </Button>
-      </div>
-
-      <WeekView weekStart={weekStart} schedules={schedules} loading={loading} onSelect={(schedule) => setSelectedId(schedule.id)} />
+      >
+        <WeekView weekStart={weekStart} schedules={schedules} loading={loading} onSelect={(schedule) => setSelectedId(schedule.id)} />
+      </PageShell>
 
       <SchedulePanel schedule={selected} onClose={() => setSelectedId(null)} onChanged={() => refetch()} />
       <ScheduleForm open={creating} onClose={() => setCreating(false)} onCreated={() => refetch()} />

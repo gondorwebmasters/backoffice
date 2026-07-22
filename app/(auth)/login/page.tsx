@@ -1,9 +1,9 @@
 "use client";
 
-import { Dumbbell } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 
+import { HeroAnimation } from "@/components/layout/hero-animation";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/input";
 
@@ -41,10 +41,8 @@ function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-6">
-      <div className="flex flex-col items-center gap-3">
-        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/75 shadow-lg shadow-primary/30">
-          <Dumbbell size={22} strokeWidth={2} className="text-primary-foreground" />
-        </span>
+      <div className="flex flex-col items-center gap-1">
+        <HeroAnimation />
         <div className="text-center">
           <h1 className="text-xl font-bold tracking-tight text-zinc-900">FitConnect</h1>
           <p className="mt-1 text-sm text-zinc-500">Panel de administración</p>

@@ -1,6 +1,10 @@
 "use client";
 
+import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+
 import type { SubscriptionsStat } from "@/lib/graphql/types";
+
+import { CHART_COLORS, CHART_TOOLTIP_STYLE } from "./chart-theme";
 
 export function PlanDistributionChart({ stats, loading }: { stats: SubscriptionsStat[]; loading?: boolean }) {
   if (loading) {
@@ -11,25 +15,31 @@ export function PlanDistributionChart({ stats, loading }: { stats: Subscriptions
     return <p className="py-16 text-center text-sm text-zinc-400">Sin suscripciones activas</p>;
   }
 
-  const max = Math.max(...stats.map((stat) => stat.count));
   const sorted = [...stats].sort((a, b) => b.count - a.count);
+  const height = Math.max(sorted.length * 44, 120);
 
   return (
-    <ul className="space-y-4">
-      {sorted.map((stat) => (
-        <li key={stat.planId} title={`${stat.planName}: ${stat.count} suscripciones`}>
-          <div className="mb-1.5 flex items-baseline justify-between">
-            <span className="text-sm text-zinc-600">{stat.planName}</span>
-            <span className="text-sm font-medium tabular-nums text-zinc-900">{stat.count}</span>
-          </div>
-          <div className="h-2 rounded-full bg-zinc-100">
-            <div
-              className="h-2 rounded-full bg-primary-chart"
-              style={{ width: `${max === 0 ? 0 : Math.max((stat.count / max) * 100, 2)}%` }}
-            />
-          </div>
-        </li>
-      ))}
-    </ul>
+    <ResponsiveContainer width="100%" height={height}>
+      <BarChart data={sorted} layout="vertical" margin={{ top: 0, right: 16, bottom: 0, left: 0 }} barCategoryGap={14}>
+        <XAxis type="number" hide />
+        <YAxis
+          type="category"
+          dataKey="planName"
+          width={120}
+          tickLine={false}
+          axisLine={false}
+          tick={{ fill: CHART_COLORS.text, fontSize: 12 }}
+        />
+        <Tooltip
+          {...CHART_TOOLTIP_STYLE}
+          formatter={(value) => [`${value} suscripciones`]}
+        />
+        <Bar dataKey="count" radius={[0, 8, 8, 0]} maxBarSize={18} animationDuration={500} animationEasing="ease-out">
+          {sorted.map((stat, index) => (
+            <Cell key={stat.planId} fill={CHART_COLORS.primary} fillOpacity={1 - index * 0.12} />
+          ))}
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
   );
 }

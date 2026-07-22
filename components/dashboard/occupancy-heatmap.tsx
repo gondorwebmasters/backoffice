@@ -49,10 +49,10 @@ export function OccupancyHeatmap({ stats, loading }: { stats: SchedulesStat[]; l
           </tr>
         </thead>
         <tbody>
-          {days.map((day) => (
+          {days.map((day, dayIndex) => (
             <tr key={day}>
               <td className="pr-2 text-right text-[10px] text-zinc-400">{DAY_LABELS[day]}</td>
-              {times.map((time) => {
+              {times.map((time, timeIndex) => {
                 const ratio = cells.get(`${day}-${time}`);
                 return (
                   <td
@@ -62,12 +62,14 @@ export function OccupancyHeatmap({ stats, loading }: { stats: SchedulesStat[]; l
                         ? `${DAY_LABELS[day]} ${time} · sin clases`
                         : `${DAY_LABELS[day]} ${time} · ${Math.round(ratio)}% de ocupación media`
                     }
-                    className="h-8 min-w-8 rounded"
+                    className="h-8 min-w-8 rounded transition-transform duration-150 hover:scale-110"
                     style={{
                       backgroundColor:
                         ratio === undefined
                           ? "rgb(var(--z-100))"
                           : `rgb(var(--primary-chart) / ${Math.max(0.12, Math.min(ratio, 100) / 100)})`,
+                      animation: "cell-in 0.4s cubic-bezier(0.16,1,0.3,1) both",
+                      animationDelay: `${(dayIndex * times.length + timeIndex) * 8}ms`,
                     }}
                   />
                 );

@@ -4,8 +4,8 @@ import { useMutation } from "@apollo/client";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Dropdown } from "@/components/ui/dropdown";
 import { Field, Input, Textarea } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
 import { SlideOver } from "@/components/ui/slide-over";
 import { useToast } from "@/components/ui/toast";
 import { CREATE_PLAN, UPDATE_PLAN } from "@/lib/graphql/plans";
@@ -145,10 +145,10 @@ export function PlanForm({ open, plan, onClose, onSaved }: PlanFormProps) {
             />
           </Field>
           <Field label="Intervalo">
-            <Select
+            <Dropdown
               options={INTERVAL_OPTIONS}
               value={form.interval}
-              onChange={(event) => set("interval")(event.target.value)}
+              onChange={set("interval")}
               disabled={Boolean(plan)}
             />
           </Field>

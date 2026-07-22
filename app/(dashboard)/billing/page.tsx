@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { DataTable, type Column } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
+import { Pagination } from "@/components/ui/pagination";
+import { PageShell } from "@/components/ui/sticky-header";
 import { Tabs } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/toast";
 import { formatCents, formatDate, formatDateTime, fullName } from "@/lib/format";
@@ -32,13 +34,20 @@ const TRANSACTION_TONES: Record<string, "positive" | "neutral" | "warning" | "ne
   partially_refunded: "warning",
 };
 
+const PAGE_SIZE = 10;
+
 function OverdueInvoices() {
   const toast = useToast();
+  const [page, setPage] = useState(0);
   const { data, loading, refetch } = useQuery<{ getOverdueInvoices: { invoices: Invoice[] | null } }>(
     GET_OVERDUE_INVOICES,
   );
   const [voidInvoice] = useMutation(VOID_INVOICE, { onCompleted: () => refetch() });
   const [markUncollectible] = useMutation(MARK_INVOICE_UNCOLLECTIBLE, { onCompleted: () => refetch() });
+
+  const allInvoices = data?.getOverdueInvoices?.invoices ?? [];
+  const pageCount = Math.max(Math.ceil(allInvoices.length / PAGE_SIZE), 1);
+  const invoices = allInvoices.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
 
   const columns: Column<Invoice>[] = [
     {
@@ -96,13 +105,16 @@ function OverdueInvoices() {
   ];
 
   return (
-    <DataTable
-      columns={columns}
-      rows={data?.getOverdueInvoices?.invoices ?? []}
-      rowKey={(invoice) => invoice.id}
-      loading={loading}
-      emptyMessage="No hay facturas vencidas 🎉"
-    />
+    <>
+      <DataTable
+        columns={columns}
+        rows={invoices}
+        rowKey={(invoice) => invoice.id}
+        loading={loading}
+        emptyMessage="No hay facturas vencidas 🎉"
+      />
+      <Pagination page={page} pageCount={pageCount} onChange={setPage} totalLabel={`${allInvoices.length} facturas`} />
+    </>
   );
 }
 
@@ -111,6 +123,7 @@ function UserTransactions() {
   const [search, setSearch] = useState("");
   const [query, setQuery] = useState("");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [page, setPage] = useState(0);
 
   useEffect(() => {
     const timeout = setTimeout(() => setQuery(search), 300);
@@ -133,10 +146,13 @@ function UserTransactions() {
     setSelectedUser(user);
     setSearch("");
     setQuery("");
+    setPage(0);
     loadTransactions({ variables: { userId: user.id, limit: 50 } });
   };
 
-  const rows = transactions.data?.listUserTransactions?.transactions ?? [];
+  const allRows = transactions.data?.listUserTransactions?.transactions ?? [];
+  const pageCount = Math.max(Math.ceil(allRows.length / PAGE_SIZE), 1);
+  const rows = allRows.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
 
   const columns: Column<Transaction>[] = [
     { key: "date", header: "Fecha", render: (transaction) => <span className="text-zinc-600">{formatDateTime(transaction.created_at)}</span> },
@@ -240,6 +256,7 @@ function UserTransactions() {
             loading={transactions.loading}
             emptyMessage="Sin transacciones"
           />
+          <Pagination page={page} pageCount={pageCount} onChange={setPage} totalLabel={`${allRows.length} transacciones`} />
         </>
       ) : (
         <p className="rounded-xl border border-dashed border-zinc-200 py-16 text-center text-sm text-zinc-400">
@@ -255,18 +272,25 @@ export default function BillingPage() {
 
   return (
     <>
-      <PageHeader title="Facturación" subtitle="Facturas vencidas y transacciones" />
-      <div className="mb-6">
-        <Tabs
-          items={[
-            { value: "invoices", label: "Facturas vencidas" },
-            { value: "transactions", label: "Transacciones" },
-          ]}
-          value={tab}
-          onChange={setTab}
-        />
-      </div>
-      {tab === "invoices" ? <OverdueInvoices /> : <UserTransactions />}
+      <PageShell
+        header={
+          <>
+            <PageHeader title="Facturación" subtitle="Facturas vencidas y transacciones" />
+            <div className="mb-6">
+              <Tabs
+                items={[
+                  { value: "invoices", label: "Facturas vencidas" },
+                  { value: "transactions", label: "Transacciones" },
+                ]}
+                value={tab}
+                onChange={setTab}
+              />
+            </div>
+          </>
+        }
+      >
+        {tab === "invoices" ? <OverdueInvoices /> : <UserTransactions />}
+      </PageShell>
     </>
   );
 }

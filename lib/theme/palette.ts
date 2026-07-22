@@ -56,7 +56,7 @@ export const ACCENT_PRESETS: AccentPreset[] = [
   preset("gray", "Gris", "#6B7280", "#9CA3AF"),
 ];
 
-export const DEFAULT_ACCENT = "indigo";
+export const DEFAULT_ACCENT = "red";
 
 export function getAccentPreset(id: string): AccentPreset {
   return ACCENT_PRESETS.find((accent) => accent.id === id) ?? ACCENT_PRESETS[0];

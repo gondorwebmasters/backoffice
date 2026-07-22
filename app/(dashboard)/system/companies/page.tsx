@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { DataTable, type Column } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
+import { PageShell } from "@/components/ui/sticky-header";
 import { SlideOver } from "@/components/ui/slide-over";
 import { GET_COMPANIES } from "@/lib/graphql/companies";
 import type { Company } from "@/lib/graphql/types";
@@ -61,50 +62,56 @@ export default function SystemCompaniesPage() {
 
   return (
     <>
-      <PageHeader
-        title="Empresas"
-        subtitle="Todas las empresas de la plataforma · solo superadmin"
-        actions={
-          <Button variant="primary" onClick={() => setCreating(true)}>
-            <Plus size={15} strokeWidth={2} />
-            Nueva empresa
-          </Button>
+      <PageShell
+        header={
+          <>
+            <PageHeader
+              title="Empresas"
+              subtitle="Todas las empresas de la plataforma · solo superadmin"
+              actions={
+                <Button variant="primary" onClick={() => setCreating(true)}>
+                  <Plus size={15} strokeWidth={2} />
+                  Nueva empresa
+                </Button>
+              }
+            />
+
+            <div className="relative mb-6 w-72">
+              <Search size={15} strokeWidth={1.5} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+              <Input
+                placeholder="Buscar empresa…"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                className="pl-9"
+              />
+            </div>
+          </>
         }
-      />
-
-      <div className="relative mb-6 w-72">
-        <Search size={15} strokeWidth={1.5} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-        <Input
-          placeholder="Buscar empresa…"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          className="pl-9"
+      >
+        <DataTable
+          columns={columns}
+          rows={companies}
+          rowKey={(company) => company.id}
+          onRowClick={setSelected}
+          loading={loading}
+          emptyMessage="Sin empresas"
         />
-      </div>
 
-      <DataTable
-        columns={columns}
-        rows={companies}
-        rowKey={(company) => company.id}
-        onRowClick={setSelected}
-        loading={loading}
-        emptyMessage="Sin empresas"
-      />
-
-      <div className="mt-4 flex items-center justify-end gap-2">
-        <span className="text-xs text-zinc-400">Página {page}</span>
-        <Button size="sm" variant="ghost" disabled={page === 1} onClick={() => setPage((value) => value - 1)}>
-          <ChevronLeft size={15} strokeWidth={1.5} />
-        </Button>
-        <Button
-          size="sm"
-          variant="ghost"
-          disabled={companies.length < 10}
-          onClick={() => setPage((value) => value + 1)}
-        >
-          <ChevronRight size={15} strokeWidth={1.5} />
-        </Button>
-      </div>
+        <div className="mt-4 flex items-center justify-end gap-2">
+          <span className="text-xs text-zinc-400">Página {page}</span>
+          <Button size="sm" variant="ghost" disabled={page === 1} onClick={() => setPage((value) => value - 1)}>
+            <ChevronLeft size={15} strokeWidth={1.5} />
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            disabled={companies.length < 10}
+            onClick={() => setPage((value) => value + 1)}
+          >
+            <ChevronRight size={15} strokeWidth={1.5} />
+          </Button>
+        </div>
+      </PageShell>
 
       <SlideOver open={creating} onClose={() => setCreating(false)} title="Nueva empresa" subtitle="Alta de empresa en la plataforma">
         <CreateCompanyForm

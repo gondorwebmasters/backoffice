@@ -14,6 +14,8 @@ export const ME = gql`
         phoneNumber
         contextRole
         isSuperAdmin
+        isActive
+        isBlocked
         activeCompanyId
         pictureUrl {
           id

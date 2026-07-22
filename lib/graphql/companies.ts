@@ -71,6 +71,22 @@ export const GET_ACTIVE_COMPANY_NAME = gql`
   }
 `;
 
+/** Solo el logo de la empresa activa — para el fondo decorativo del layout. */
+export const GET_ACTIVE_COMPANY_LOGO = gql`
+  query GetActiveCompanyLogo($companyId: ID!) {
+    getCompanies(companyId: $companyId) {
+      success
+      company {
+        id
+        logo {
+          id
+          url
+        }
+      }
+    }
+  }
+`;
+
 export const UPDATE_COMPANY_LOGO = gql`
   mutation UpdateCompanyLogo($companyId: ID!, $picture: String!) {
     updateCompanyLogo(companyId: $companyId, picture: $picture) {

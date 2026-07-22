@@ -5,8 +5,9 @@ import { useState } from "react";
 
 import { cn } from "@/lib/cn";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
+import { Dropdown } from "@/components/ui/dropdown";
 import { Field, Input, Textarea } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
 import { SlideOver } from "@/components/ui/slide-over";
 import { useToast } from "@/components/ui/toast";
 import { fullName } from "@/lib/format";
@@ -133,7 +134,7 @@ export function ScheduleForm({ open, onClose, onCreated }: ScheduleFormProps) {
         </Field>
         <div className="grid grid-cols-2 gap-4">
           <Field label="Tipo">
-            <Select options={TYPE_OPTIONS} value={form.type} onChange={(event) => set("type", event.target.value)} />
+            <Dropdown options={TYPE_OPTIONS} value={form.type} onChange={(value) => set("type", value)} />
           </Field>
           <Field label="Plazas">
             <Input
@@ -153,14 +154,15 @@ export function ScheduleForm({ open, onClose, onCreated }: ScheduleFormProps) {
           </Field>
         </div>
         <Field label="Entrenador">
-          <Select
+          <Dropdown
             options={(trainers.data?.getUsers?.users ?? []).map((user) => ({
               value: user.id,
               label: fullName(user),
             }))}
             placeholder="Selecciona…"
+            searchable
             value={form.admin}
-            onChange={(event) => set("admin", event.target.value)}
+            onChange={(value) => set("admin", value)}
           />
         </Field>
 
@@ -196,7 +198,7 @@ export function ScheduleForm({ open, onClose, onCreated }: ScheduleFormProps) {
           </Field>
         ) : (
           <Field label="Fecha">
-            <Input type="date" value={form.date} onChange={(event) => set("date", event.target.value)} />
+            <DatePicker value={form.date} onChange={(value) => set("date", value)} />
           </Field>
         )}
       </div>

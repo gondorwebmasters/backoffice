@@ -1,5 +1,9 @@
 "use client";
 
+import { Area, AreaChart } from "recharts";
+
+import { CHART_COLORS } from "@/components/dashboard/chart-theme";
+
 interface SparklineProps {
   data: number[];
   width?: number;
@@ -10,44 +14,31 @@ interface SparklineProps {
 /**
  * Mini-gráfico de tendencia decorativo (serie única, sin ejes ni leyenda).
  * El valor real siempre debe mostrarse como texto junto a él — el sparkline
- * solo aporta forma de la tendencia. Trazo 2px en --primary-chart (variante
- * del acento validada por modo claro/oscuro).
+ * solo aporta forma de la tendencia.
  */
 export function Sparkline({ data, width = 96, height = 28, className }: SparklineProps) {
   if (data.length < 2) return null;
 
-  const min = Math.min(...data);
-  const max = Math.max(...data);
-  const range = max - min || 1;
-  const pad = 2; // deja sitio al grosor del trazo
-
-  const points = data.map((value, index) => {
-    const x = pad + (index / (data.length - 1)) * (width - pad * 2);
-    const y = pad + (1 - (value - min) / range) * (height - pad * 2);
-    return [x, y] as const;
-  });
-
-  const line = points.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
-  const area = `${pad},${height} ${line} ${width - pad},${height}`;
+  const points = data.map((value, index) => ({ index, value }));
 
   return (
-    <svg
-      width={width}
-      height={height}
-      viewBox={`0 0 ${width} ${height}`}
-      className={className}
-      aria-hidden="true"
-      focusable="false"
-    >
-      <polygon points={area} className="fill-primary-chart/10" />
-      <polyline
-        points={line}
-        fill="none"
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="stroke-primary-chart"
-      />
-    </svg>
+    <div className={className} style={{ width, height }}>
+      <AreaChart width={width} height={height} data={points} margin={{ top: 2, right: 2, bottom: 2, left: 2 }}>
+        <defs>
+          <linearGradient id="sparkline-fill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={CHART_COLORS.primary} stopOpacity={0.35} />
+            <stop offset="100%" stopColor={CHART_COLORS.primary} stopOpacity={0} />
+          </linearGradient>
+        </defs>
+        <Area
+          type="monotone"
+          dataKey="value"
+          stroke={CHART_COLORS.primary}
+          strokeWidth={2}
+          fill="url(#sparkline-fill)"
+          isAnimationActive={false}
+        />
+      </AreaChart>
+    </div>
   );
 }

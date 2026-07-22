@@ -41,7 +41,12 @@ export default function SettingsLayout({ children }: { children: ReactNode }) {
           );
         })}
       </nav>
-      {children}
+      {/*
+        Alto fijo relativo al viewport: el título y las pestañas quedan
+        siempre visibles y es este contenedor el que hace scroll, no la
+        página — igual que las tablas.
+      */}
+      <div className="max-h-[calc(100vh-21rem)] overflow-y-auto pr-1">{children}</div>
     </>
   );
 }
