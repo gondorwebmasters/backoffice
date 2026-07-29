@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import type { SchedulesStat } from "@/lib/graphql/types";
 
 // El server emite dayAndTime con formato moment "ddd HH:mm"
@@ -8,9 +10,10 @@ const DAY_ORDER: Record<string, number> = {
   lun: 0, mar: 1, mié: 2, mie: 2, jue: 3, vie: 4, sáb: 5, sab: 5, dom: 6,
 };
 
-const DAY_LABELS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
-
 export function OccupancyHeatmap({ stats, loading }: { stats: SchedulesStat[]; loading?: boolean }) {
+  const t = useTranslations("dashboard.occupancyHeatmap");
+  const DAY_LABELS = Array.from({ length: 7 }, (_, index) => t(`days.${index}`));
+
   if (loading) {
     return <div className="h-64 animate-pulse rounded-lg bg-zinc-100" />;
   }
@@ -32,7 +35,7 @@ export function OccupancyHeatmap({ stats, loading }: { stats: SchedulesStat[]; l
   const days = [...daysSet].sort((a, b) => a - b);
 
   if (times.length === 0) {
-    return <p className="py-16 text-center text-sm text-zinc-400">Sin clases este mes</p>;
+    return <p className="py-16 text-center text-sm text-zinc-400">{t("empty")}</p>;
   }
 
   return (
@@ -59,8 +62,8 @@ export function OccupancyHeatmap({ stats, loading }: { stats: SchedulesStat[]; l
                     key={time}
                     title={
                       ratio === undefined
-                        ? `${DAY_LABELS[day]} ${time} · sin clases`
-                        : `${DAY_LABELS[day]} ${time} · ${Math.round(ratio)}% de ocupación media`
+                        ? t("cellEmpty", { day: DAY_LABELS[day], time })
+                        : t("cellFilled", { day: DAY_LABELS[day], time, ratio: Math.round(ratio) })
                     }
                     className="h-8 min-w-8 rounded transition-transform duration-150 hover:scale-110"
                     style={{
@@ -89,7 +92,7 @@ export function OccupancyHeatmap({ stats, loading }: { stats: SchedulesStat[]; l
             />
           ))}
         </div>
-        <span>100% ocupación</span>
+        <span>{t("legendFull")}</span>
       </div>
     </div>
   );

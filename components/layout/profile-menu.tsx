@@ -1,6 +1,7 @@
 "use client";
 
 import { LogOut, Settings, UserRound } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
 import { Avatar } from "@/components/ui/avatar";
@@ -12,6 +13,7 @@ import { useSession } from "./session-provider";
 export function ProfileMenu() {
   const { user } = useSession();
   const router = useRouter();
+  const t = useTranslations("profileMenu");
 
   if (!user) return null;
 
@@ -37,17 +39,17 @@ export function ProfileMenu() {
         <p className="truncate text-xs text-zinc-400">{user.email}</p>
       </div>
       <MenuItem icon={<UserRound size={14} strokeWidth={1.5} />} onClick={() => router.push("/profile")}>
-        Mi perfil
+        {t("profile")}
       </MenuItem>
       <MenuItem
         icon={<Settings size={14} strokeWidth={1.5} />}
         onClick={() => router.push("/settings")}
       >
-        Ajustes
+        {t("settings")}
       </MenuItem>
       <MenuSeparator />
       <MenuItem icon={<LogOut size={14} strokeWidth={1.5} />} tone="danger" onClick={handleLogout}>
-        Cerrar sesión
+        {t("logout")}
       </MenuItem>
     </Menu>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { SlideOver } from "@/components/ui/slide-over";
@@ -12,13 +13,6 @@ import { ProfileTab } from "./profile-tab";
 import { SchedulesTab } from "./schedules-tab";
 import { SubscriptionTab } from "./subscription-tab";
 
-const TABS = [
-  { value: "profile", label: "Perfil" },
-  { value: "subscription", label: "Suscripción" },
-  { value: "payments", label: "Pagos" },
-  { value: "schedules", label: "Clases" },
-];
-
 interface MemberPanelProps {
   member: User | null;
   onClose: () => void;
@@ -26,7 +20,14 @@ interface MemberPanelProps {
 }
 
 export function MemberPanel({ member, onClose, onChanged }: MemberPanelProps) {
+  const t = useTranslations("members.panel.tabs");
   const [tab, setTab] = useState("profile");
+  const TABS = [
+    { value: "profile", label: t("profile") },
+    { value: "subscription", label: t("subscription") },
+    { value: "payments", label: t("payments") },
+    { value: "schedules", label: t("schedules") },
+  ];
 
   return (
     <SlideOver

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery } from "@apollo/client";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { cn } from "@/lib/cn";
@@ -16,23 +17,9 @@ import type { User } from "@/lib/graphql/types";
 import { GET_USERS } from "@/lib/graphql/users";
 
 // Convención del server: 0 = domingo … 6 = sábado (ver DAY_MAPPING en la app móvil)
-const DAYS = [
-  { value: 1, label: "L" },
-  { value: 2, label: "M" },
-  { value: 3, label: "X" },
-  { value: 4, label: "J" },
-  { value: 5, label: "V" },
-  { value: 6, label: "S" },
-  { value: 0, label: "D" },
-];
+const DAY_VALUES = [1, 2, 3, 4, 5, 6, 0];
 
-const TYPE_OPTIONS = [
-  { value: "standard", label: "Estándar" },
-  { value: "sparring", label: "Sparring" },
-  { value: "free", label: "Libre" },
-  { value: "conditioning", label: "Acondicionamiento" },
-  { value: "competition", label: "Competición" },
-];
+const TYPE_VALUES = ["standard", "sparring", "free", "conditioning", "competition"] as const;
 
 const EMPTY_FORM = {
   title: "",
@@ -54,8 +41,12 @@ interface ScheduleFormProps {
 }
 
 export function ScheduleForm({ open, onClose, onCreated }: ScheduleFormProps) {
+  const t = useTranslations("calendar.scheduleForm");
   const toast = useToast();
   const [form, setForm] = useState(EMPTY_FORM);
+
+  const DAYS = DAY_VALUES.map((value) => ({ value, label: t(`dayInitials.${value}`) }));
+  const TYPE_OPTIONS = TYPE_VALUES.map((value) => ({ value, label: t(`types.${value}`) }));
 
   const trainers = useQuery<{ getUsers: { users: User[] | null } }>(GET_USERS, {
     variables: { roleFilter: ["admin", "coach"] },
@@ -99,12 +90,12 @@ export function ScheduleForm({ open, onClose, onCreated }: ScheduleFormProps) {
     });
     const result = data?.createSchedule;
     if (result?.success) {
-      toast("Clase creada");
+      toast(t("created"));
       setForm(EMPTY_FORM);
       onCreated();
       onClose();
     } else {
-      toast(result?.message ?? "No se pudo crear la clase", "error");
+      toast(result?.message ?? t("createFailed"), "error");
     }
   };
 
@@ -112,31 +103,31 @@ export function ScheduleForm({ open, onClose, onCreated }: ScheduleFormProps) {
     <SlideOver
       open={open}
       onClose={onClose}
-      title="Nueva clase"
-      subtitle={form.repeat ? "Serie recurrente semanal" : "Clase puntual"}
+      title={t("newClass")}
+      subtitle={form.repeat ? t("weeklySeries") : t("oneTimeClass")}
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>
-            Cancelar
+            {t("cancel")}
           </Button>
           <Button variant="primary" onClick={handleSubmit} disabled={!valid || loading}>
-            {loading ? "Creando…" : "Crear clase"}
+            {loading ? t("creating") : t("createClass")}
           </Button>
         </>
       }
     >
       <div className="space-y-5">
-        <Field label="Título">
+        <Field label={t("title")}>
           <Input value={form.title} onChange={(event) => set("title", event.target.value)} />
         </Field>
-        <Field label="Descripción">
+        <Field label={t("description")}>
           <Textarea value={form.description} onChange={(event) => set("description", event.target.value)} />
         </Field>
         <div className="grid grid-cols-2 gap-4">
-          <Field label="Tipo">
+          <Field label={t("type")}>
             <Dropdown options={TYPE_OPTIONS} value={form.type} onChange={(value) => set("type", value)} />
           </Field>
-          <Field label="Plazas">
+          <Field label={t("spots")}>
             <Input
               type="number"
               min={1}
@@ -146,20 +137,20 @@ export function ScheduleForm({ open, onClose, onCreated }: ScheduleFormProps) {
           </Field>
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <Field label="Hora inicio">
+          <Field label={t("startTime")}>
             <Input type="time" value={form.startHour} onChange={(event) => set("startHour", event.target.value)} />
           </Field>
-          <Field label="Hora fin">
+          <Field label={t("endTime")}>
             <Input type="time" value={form.endHour} onChange={(event) => set("endHour", event.target.value)} />
           </Field>
         </div>
-        <Field label="Entrenador">
+        <Field label={t("trainer")}>
           <Dropdown
             options={(trainers.data?.getUsers?.users ?? []).map((user) => ({
               value: user.id,
               label: fullName(user),
             }))}
-            placeholder="Selecciona…"
+            placeholder={t("select")}
             searchable
             value={form.admin}
             onChange={(value) => set("admin", value)}
@@ -173,11 +164,11 @@ export function ScheduleForm({ open, onClose, onCreated }: ScheduleFormProps) {
             onChange={(event) => set("repeat", event.target.checked)}
             className="h-4 w-4 rounded border-zinc-300 accent-zinc-900"
           />
-          Repetir semanalmente
+          {t("repeatWeekly")}
         </label>
 
         {form.repeat ? (
-          <Field label="Días de la semana">
+          <Field label={t("daysOfWeek")}>
             <div className="flex gap-2">
               {DAYS.map((day) => (
                 <button
@@ -197,7 +188,7 @@ export function ScheduleForm({ open, onClose, onCreated }: ScheduleFormProps) {
             </div>
           </Field>
         ) : (
-          <Field label="Fecha">
+          <Field label={t("date")}>
             <DatePicker value={form.date} onChange={(value) => set("date", value)} />
           </Field>
         )}

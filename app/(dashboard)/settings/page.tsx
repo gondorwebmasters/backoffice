@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery } from "@apollo/client";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { useSession } from "@/components/layout/session-provider";
@@ -12,19 +13,14 @@ import { useToast } from "@/components/ui/toast";
 import { GET_COMPANIES, UPDATE_COMPANY } from "@/lib/graphql/companies";
 import type { Company } from "@/lib/graphql/types";
 
-const CONFIG_LABELS = {
-  pollsEnabled: "Encuestas",
-  productsEnabled: "Tienda de productos",
-  chatEnabled: "Chat",
-  trainingEnabled: "Entrenamiento",
-} as const;
+const CONFIG_KEYS = ["pollsEnabled", "productsEnabled", "chatEnabled", "trainingEnabled"] as const;
 
-const OPTION_FIELDS = [
-  { key: "maxActiveReservations", label: "Reservas activas máximas" },
-  { key: "maxAdvanceBookingDays", label: "Días máximos de antelación" },
-  { key: "fullOpenHours", label: "Horas de apertura completa" },
-  { key: "bookingCutoffMinutes", label: "Minutos de cierre de reserva" },
-  { key: "minBookingsRequired", label: "Reservas mínimas por clase" },
+const OPTION_KEYS = [
+  "maxActiveReservations",
+  "maxAdvanceBookingDays",
+  "fullOpenHours",
+  "bookingCutoffMinutes",
+  "minBookingsRequired",
 ] as const;
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -37,8 +33,18 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 export default function SettingsPage() {
+  const t = useTranslations("settings.page");
   const toast = useToast();
   const { user } = useSession();
+
+  const CONFIG_LABELS: Record<(typeof CONFIG_KEYS)[number], string> = {
+    pollsEnabled: t("configLabels.pollsEnabled"),
+    productsEnabled: t("configLabels.productsEnabled"),
+    chatEnabled: t("configLabels.chatEnabled"),
+    trainingEnabled: t("configLabels.trainingEnabled"),
+  };
+
+  const OPTION_FIELDS = OPTION_KEYS.map((key) => ({ key, label: t(`optionFields.${key}`) }));
   const companyId = user?.activeCompanyId;
 
   const { data, loading } = useQuery<{ getCompanies: { company: Company | null; companies: Company[] | null } }>(
@@ -107,9 +113,9 @@ export default function SettingsPage() {
       },
     });
     if (result?.updateCompany?.success) {
-      toast("Ajustes guardados");
+      toast(t("saved"));
     } else {
-      toast(result?.updateCompany?.message ?? "No se pudieron guardar los ajustes", "error");
+      toast(result?.updateCompany?.message ?? t("saveFailed"), "error");
     }
   };
 
@@ -120,31 +126,31 @@ export default function SettingsPage() {
   return (
     <>
       <div className="space-y-6">
-        <Section title="Datos de la empresa">
+        <Section title={t("companyData")}>
           {company ? (
             <div className="mb-6 border-b border-zinc-100 pb-6">
               <CompanyLogoUpload company={company} />
             </div>
           ) : null}
           <div className="grid gap-5 md:grid-cols-2">
-            <Field label="Nombre">
+            <Field label={t("name")}>
               <Input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
             </Field>
-            <Field label="Email">
+            <Field label={t("email")}>
               <Input type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} />
             </Field>
-            <Field label="Teléfono">
+            <Field label={t("phone")}>
               <Input value={form.phoneNumber} onChange={(event) => setForm({ ...form, phoneNumber: event.target.value })} />
             </Field>
             <div className="md:col-span-2">
-              <Field label="Dirección">
+              <Field label={t("address")}>
                 <Input value={form.address} onChange={(event) => setForm({ ...form, address: event.target.value })} />
               </Field>
             </div>
           </div>
         </Section>
 
-        <Section title="Módulos activos en la app">
+        <Section title={t("activeModules")}>
           <div className="grid gap-3 md:grid-cols-2">
             {(Object.keys(CONFIG_LABELS) as (keyof typeof CONFIG_LABELS)[]).map((key) => (
               <label
@@ -163,7 +169,7 @@ export default function SettingsPage() {
           </div>
         </Section>
 
-        <Section title="Reglas de reservas">
+        <Section title={t("bookingRules")}>
           <div className="grid gap-5 md:grid-cols-3">
             {OPTION_FIELDS.map(({ key, label }) => (
               <Field key={key} label={label}>
@@ -187,14 +193,14 @@ export default function SettingsPage() {
                   })
                 }
               />
-              Permitir reserva el mismo día
+              {t("sameDayBooking")}
             </label>
           </div>
         </Section>
 
         <div className="flex justify-end">
           <Button variant="primary" onClick={handleSave} disabled={saving || !companyId}>
-            {saving ? "Guardando…" : "Guardar cambios"}
+            {saving ? t("saving") : t("saveChanges")}
           </Button>
         </div>
       </div>

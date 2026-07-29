@@ -39,6 +39,15 @@ export const UPDATE_PASSWORD = gql`
   }
 `;
 
+export const ADMIN_UPDATE_PASSWORD = gql`
+  mutation AdminUpdatePassword($password: AdminUpdatePasswordInput!) {
+    adminUpdatePassword(password: $password) {
+      success
+      message
+    }
+  }
+`;
+
 export const SET_ACTIVE_COMPANY = gql`
   mutation SetActiveCompany($companyId: ID!) {
     setActiveCompany(companyId: $companyId) {

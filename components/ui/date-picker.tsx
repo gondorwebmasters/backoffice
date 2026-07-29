@@ -1,13 +1,17 @@
 "use client";
 
 import { CalendarDays } from "lucide-react";
-import { es } from "date-fns/locale";
+import { es, pt } from "date-fns/locale";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { DayPicker } from "react-day-picker";
 
 import { cn } from "@/lib/cn";
 
 import { Popover } from "./popover";
+
+const DATE_FNS_LOCALES: Record<string, typeof es> = { es, pt };
+const INTL_LOCALE: Record<string, string> = { es: "es-ES", pt: "pt-PT" };
 
 interface DatePickerProps {
   /** Fecha en formato `YYYY-MM-DD`, o vacío para "sin selección". */
@@ -72,10 +76,12 @@ const DAY_PICKER_CLASS_NAMES = {
 export function DatePicker({
   value,
   onChange,
-  placeholder = "Selecciona una fecha",
+  placeholder,
   className,
   withTime = false,
 }: DatePickerProps) {
+  const t = useTranslations("ui.datePicker");
+  const locale = useLocale();
   const [open, setOpen] = useState(false);
   const selected = parseISODate(value);
 
@@ -101,13 +107,13 @@ export function DatePicker({
         >
           <span className="truncate">
             {selected
-              ? selected.toLocaleDateString("es-ES", {
+              ? selected.toLocaleDateString(INTL_LOCALE[locale] ?? locale, {
                   day: "2-digit",
                   month: "long",
                   year: "numeric",
                   ...(withTime ? { hour: "2-digit", minute: "2-digit" } : {}),
                 })
-              : placeholder}
+              : (placeholder ?? t("selectDate"))}
           </span>
           <CalendarDays size={14} strokeWidth={1.5} className="shrink-0 text-zinc-400" />
         </button>
@@ -124,14 +130,14 @@ export function DatePicker({
           commit(date);
           if (!withTime) setOpen(false);
         }}
-        locale={es}
+        locale={DATE_FNS_LOCALES[locale] ?? es}
         weekStartsOn={1}
         showOutsideDays
         classNames={DAY_PICKER_CLASS_NAMES}
       />
       {withTime ? (
         <div className="mt-2 flex items-center gap-2 border-t border-zinc-100 pt-3">
-          <span className="text-xs font-medium uppercase tracking-wider text-zinc-400">Hora</span>
+          <span className="text-xs font-medium uppercase tracking-wider text-zinc-400">{t("time")}</span>
           <input
             type="time"
             value={selected ? toTimeString(selected) : "00:00"}

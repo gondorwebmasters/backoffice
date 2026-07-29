@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronsLeft, ChevronsRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -13,9 +14,9 @@ import { useShell } from "./app-shell";
 import { MAIN_NAV, SYSTEM_NAV, type NavItem } from "./nav";
 import { useSession } from "./session-provider";
 
-function NavLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
+function NavLink({ item, label, collapsed }: { item: NavItem; label: string; collapsed: boolean }) {
   const pathname = usePathname();
-  const { href, label, icon: Icon } = item;
+  const { href, icon: Icon } = item;
   const active =
     href === "/" || href === "/system" ? pathname === href : pathname.startsWith(href);
 
@@ -45,6 +46,9 @@ function NavLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
 export function Sidebar() {
   const { user } = useSession();
   const { collapsed, toggleCollapsed } = useShell();
+  const t = useTranslations("nav.main");
+  const tSystem = useTranslations("nav.system");
+  const tSidebar = useTranslations("sidebar");
 
   return (
     <motion.aside
@@ -78,7 +82,7 @@ export function Sidebar() {
                 FitConnect
               </span>
               <span className="rounded border border-zinc-200 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-zinc-400">
-                Admin
+                {tSidebar("adminBadge")}
               </span>
             </motion.span>
           )}
@@ -87,7 +91,7 @@ export function Sidebar() {
 
       <nav className={cn("flex-1 space-y-0.5 overflow-y-auto pb-4", collapsed ? "px-2.5" : "px-3")}>
         {MAIN_NAV.map((item) => (
-          <NavLink key={item.href} item={item} collapsed={collapsed} />
+          <NavLink key={item.href} item={item} label={t(item.labelKey)} collapsed={collapsed} />
         ))}
         {user?.isSuperAdmin ? (
           <>
@@ -95,11 +99,11 @@ export function Sidebar() {
               <div className="mx-2 my-3 border-t border-zinc-100" />
             ) : (
               <p className="px-3 pb-1 pt-6 text-[10px] font-medium uppercase tracking-wider text-zinc-400">
-                Sistema
+                {tSidebar("system")}
               </p>
             )}
             {SYSTEM_NAV.map((item) => (
-              <NavLink key={item.href} item={item} collapsed={collapsed} />
+              <NavLink key={item.href} item={item} label={tSystem(item.labelKey)} collapsed={collapsed} />
             ))}
           </>
         ) : null}
@@ -108,7 +112,7 @@ export function Sidebar() {
       <div className={cn("border-t border-zinc-100 py-3", collapsed ? "px-2.5" : "px-3")}>
         <button
           onClick={toggleCollapsed}
-          title={collapsed ? "Expandir menú" : "Colapsar menú"}
+          title={collapsed ? tSidebar("expand") : tSidebar("collapse")}
           className={cn(
             "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-zinc-400 transition-colors hover:bg-zinc-50 hover:text-zinc-900",
             collapsed && "justify-center px-0",
@@ -119,7 +123,7 @@ export function Sidebar() {
           ) : (
             <>
               <ChevronsLeft size={16} strokeWidth={1.5} />
-              <span>Colapsar</span>
+              <span>{tSidebar("collapse")}</span>
             </>
           )}
         </button>

@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery } from "@apollo/client";
 import { AlertTriangle, Info, Megaphone, MessageSquare, Send, XCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { MemberFilters } from "@/components/members/member-filters";
@@ -25,13 +26,6 @@ const PAGE_SIZE = 10;
 
 type NotificationType = "info" | "message" | "warning" | "error";
 
-const TYPE_OPTIONS: { value: NotificationType; label: string }[] = [
-  { value: "info", label: "Información" },
-  { value: "message", label: "Mensaje" },
-  { value: "warning", label: "Aviso" },
-  { value: "error", label: "Urgente" },
-];
-
 const TYPE_META: Record<NotificationType, { tone: "positive" | "neutral" | "warning" | "negative"; icon: typeof Info }> = {
   info: { tone: "neutral", icon: Info },
   message: { tone: "positive", icon: MessageSquare },
@@ -39,15 +33,33 @@ const TYPE_META: Record<NotificationType, { tone: "positive" | "neutral" | "warn
   error: { tone: "negative", icon: XCircle },
 };
 
-function memberState(user: User): { tone: "positive" | "neutral" | "warning" | "negative" | "muted"; label: string } {
-  if (user.isBlocked) return { tone: "negative", label: "Bloqueado" };
-  if (user.isPending) return { tone: "warning", label: "Pendiente" };
-  if (user.isActive === false) return { tone: "muted", label: "Inactivo" };
-  return { tone: "positive", label: "Activo" };
-}
+// Debe coincidir con las categorías registradas en el cliente Expo vía
+// Notifications.setNotificationCategoryAsync (ver client/hooks/notification-categories.ts).
+// Agregar una categoría nueva ahí requiere replicar su identificador aquí.
+const CATEGORY_IDS = ["NUEVA_RUTINA", "RECORDATORIO_AGUA"] as const;
 
 export default function BroadcastPage() {
+  const t = useTranslations("broadcast");
   const toast = useToast();
+
+  const TYPE_OPTIONS: { value: NotificationType; label: string }[] = [
+    { value: "info", label: t("types.info") },
+    { value: "message", label: t("types.message") },
+    { value: "warning", label: t("types.warning") },
+    { value: "error", label: t("types.error") },
+  ];
+
+  const CATEGORY_OPTIONS: { value: string; label: string }[] = CATEGORY_IDS.map((id) => ({
+    value: id,
+    label: t(`categories.${id}`),
+  }));
+
+  const memberState = (user: User): { tone: "positive" | "neutral" | "warning" | "negative" | "muted"; label: string } => {
+    if (user.isBlocked) return { tone: "negative", label: t("stateLabels.blocked") };
+    if (user.isPending) return { tone: "warning", label: t("stateLabels.pending") };
+    if (user.isActive === false) return { tone: "muted", label: t("stateLabels.inactive") };
+    return { tone: "positive", label: t("stateLabels.active") };
+  };
 
   // ── Audiencia (mismo patrón de filtros + paginación de Miembros) ──
   const [search, setSearch] = useState("");
@@ -138,6 +150,7 @@ export default function BroadcastPage() {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [type, setType] = useState<NotificationType>("info");
+  const [category, setCategory] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const [sendNotification, { loading: sending }] = useMutation(SEND_NOTIFICATION);
@@ -153,6 +166,7 @@ export default function BroadcastPage() {
           forAll: false,
           userIds: [...selectedIds],
           type,
+          categoryIdentifier: category || undefined,
         },
       },
     });
@@ -160,19 +174,20 @@ export default function BroadcastPage() {
     setConfirmOpen(false);
 
     if (result?.sendNotification?.success) {
-      toast(`Notificación enviada a ${selectedIds.size} ${selectedIds.size === 1 ? "miembro" : "miembros"}`);
+      toast(t("sentToast", { count: selectedIds.size }));
       setTitle("");
       setBody("");
+      setCategory("");
       clearSelection();
     } else {
-      toast(result?.sendNotification?.message ?? "No se pudo enviar la notificación", "error");
+      toast(result?.sendNotification?.message ?? t("sendFailed"), "error");
     }
   };
 
   const columns: Column<User>[] = [
     {
       key: "member",
-      header: "Miembro",
+      header: t("columns.member"),
       render: (user) => (
         <div className="flex items-center gap-3">
           <Avatar size="sm" name={fullName(user)} url={user.pictureUrl?.url} />
@@ -185,7 +200,7 @@ export default function BroadcastPage() {
     },
     {
       key: "state",
-      header: "Estado",
+      header: t("columns.state"),
       render: (user) => {
         const { tone, label } = memberState(user);
         return <BadgeDot tone={tone} label={label} />;
@@ -199,8 +214,8 @@ export default function BroadcastPage() {
     <PageShell
       header={
         <PageHeader
-          title="Notificaciones push"
-          subtitle="Envía notificaciones push a una selección de miembros"
+          title={t("title")}
+          subtitle={t("subtitle")}
         />
       }
     >
@@ -209,30 +224,30 @@ export default function BroadcastPage() {
           <div className="rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-card">
             <div className="mb-5 flex items-center gap-2">
               <Megaphone size={16} strokeWidth={1.5} className="text-primary" />
-              <h2 className="text-sm font-medium text-zinc-900">Componer mensaje</h2>
+              <h2 className="text-sm font-medium text-zinc-900">{t("composeMessage")}</h2>
             </div>
 
             <div className="space-y-5">
-              <Field label="Título">
+              <Field label={t("titleField")}>
                 <Input
                   value={title}
                   onChange={(event) => setTitle(event.target.value)}
-                  placeholder="Ej. Cierre por vacaciones"
+                  placeholder={t("titlePlaceholder")}
                   maxLength={80}
                 />
               </Field>
 
-              <Field label="Mensaje">
+              <Field label={t("messageField")}>
                 <Textarea
                   value={body}
                   onChange={(event) => setBody(event.target.value)}
-                  placeholder="Escribe el contenido de la notificación…"
+                  placeholder={t("messagePlaceholder")}
                   rows={5}
                   maxLength={400}
                 />
               </Field>
 
-              <Field label="Tipo">
+              <Field label={t("typeField")}>
                 <Dropdown
                   options={TYPE_OPTIONS}
                   value={type}
@@ -240,11 +255,24 @@ export default function BroadcastPage() {
                 />
               </Field>
 
+              <Field
+                label={t("categoryField")}
+                hint={t("categoryHint")}
+              >
+                <Dropdown
+                  options={CATEGORY_OPTIONS}
+                  value={category}
+                  onChange={setCategory}
+                  placeholder={t("categoryPlaceholder")}
+                  clearable
+                />
+              </Field>
+
               <div className="rounded-xl border border-zinc-100 bg-zinc-50/60 px-4 py-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-sm text-zinc-600">
                     <TypeIcon size={14} strokeWidth={1.5} />
-                    Destinatarios seleccionados
+                    {t("selectedRecipients")}
                   </div>
                   <span className="text-sm font-semibold tabular-nums text-zinc-900">{selectedIds.size}</span>
                 </div>
@@ -253,10 +281,10 @@ export default function BroadcastPage() {
                     onClick={clearSelection}
                     className="mt-1 text-xs text-zinc-400 underline-offset-2 hover:text-zinc-600 hover:underline"
                   >
-                    Limpiar selección
+                    {t("clearSelection")}
                   </button>
                 ) : (
-                  <p className="mt-1 text-xs text-zinc-400">Selecciona miembros en la tabla de la derecha</p>
+                  <p className="mt-1 text-xs text-zinc-400">{t("selectHint")}</p>
                 )}
               </div>
 
@@ -267,7 +295,7 @@ export default function BroadcastPage() {
                 onClick={() => setConfirmOpen(true)}
               >
                 <Send size={15} strokeWidth={1.5} />
-                Enviar notificación
+                {t("send")}
               </Button>
             </div>
           </div>
@@ -296,19 +324,19 @@ export default function BroadcastPage() {
             rows={users}
             rowKey={(user) => user.id}
             loading={loading}
-            emptyMessage="No hay miembros que coincidan con los filtros"
+            emptyMessage={t("emptyTable")}
             selection={{ selectedIds, onToggle: toggleSelected, onToggleAll: toggleSelectAll }}
           />
 
           <div className="mt-4 flex items-center justify-end gap-2">
             <span className="text-xs tabular-nums text-zinc-400">
-              Página {serverPage * (SERVER_PAGE_SIZE / PAGE_SIZE) + subPage + 1}
+              {t("pageLabel", { page: serverPage * (SERVER_PAGE_SIZE / PAGE_SIZE) + subPage + 1 })}
             </span>
             <Button size="sm" variant="ghost" disabled={!canGoPrev} onClick={goPrev}>
-              Anterior
+              {t("previous")}
             </Button>
             <Button size="sm" variant="ghost" disabled={!canGoNext} onClick={goNext}>
-              Siguiente
+              {t("next")}
             </Button>
           </div>
         </div>
@@ -316,13 +344,14 @@ export default function BroadcastPage() {
 
       <ConfirmDialog
         open={confirmOpen}
-        title="Enviar notificación push"
-        description={`Se enviará "${title}" a ${selectedIds.size} ${
-          selectedIds.size === 1 ? "miembro" : "miembros"
-        } seleccionados: ${[...selectedUsers.values()].slice(0, 3).map(fullName).join(", ")}${
-          selectedUsers.size > 3 ? `, +${selectedUsers.size - 3} más` : ""
-        }. Esta acción no se puede deshacer.`}
-        confirmLabel={sending ? "Enviando…" : "Enviar"}
+        title={t("confirmTitle")}
+        description={t("confirmDescription", {
+          title,
+          count: selectedIds.size,
+          names: [...selectedUsers.values()].slice(0, 3).map(fullName).join(", "),
+          more: selectedUsers.size > 3 ? t("confirmMore", { count: selectedUsers.size - 3 }) : "",
+        })}
+        confirmLabel={sending ? t("sending") : t("confirmSend")}
         loading={sending}
         onConfirm={handleSend}
         onCancel={() => setConfirmOpen(false)}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery } from "@apollo/client";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { BadgeDot } from "@/components/ui/badge-dot";
@@ -8,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Dropdown } from "@/components/ui/dropdown";
 import { Field, Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
-import { formatCents, formatDate } from "@/lib/format";
+import { formatCents, formatDate, planPriceCents } from "@/lib/format";
 import { LIST_PLANS } from "@/lib/graphql/plans";
 import {
   CANCEL_SUBSCRIPTION,
@@ -21,18 +22,28 @@ import {
 } from "@/lib/graphql/subscriptions";
 import type { Plan, Subscription, SubscriptionStatus } from "@/lib/graphql/types";
 
-const STATUS_LABELS: Record<SubscriptionStatus, { label: string; tone: "positive" | "neutral" | "warning" | "negative" | "muted" }> = {
-  active: { label: "Activa", tone: "positive" },
-  trialing: { label: "En prueba", tone: "neutral" },
-  past_due: { label: "Pago vencido", tone: "warning" },
-  paused: { label: "Pausada", tone: "muted" },
-  canceled: { label: "Cancelada", tone: "muted" },
-  unpaid: { label: "Impagada", tone: "negative" },
-  incomplete: { label: "Incompleta", tone: "warning" },
-  incomplete_expired: { label: "Expirada", tone: "muted" },
+const STATUS_TONES: Record<SubscriptionStatus, "positive" | "neutral" | "warning" | "negative" | "muted"> = {
+  active: "positive",
+  trialing: "neutral",
+  past_due: "warning",
+  paused: "muted",
+  canceled: "muted",
+  unpaid: "negative",
+  incomplete: "warning",
+  incomplete_expired: "muted",
 };
 
+function useStatusLabels() {
+  const t = useTranslations("members.subscriptionTab.statusLabels");
+  return (status: SubscriptionStatus) => ({
+    label: t(status),
+    tone: STATUS_TONES[status] ?? "neutral",
+  });
+}
+
 function SubscriptionCard({ subscription, onChanged }: { subscription: Subscription; onChanged: () => void }) {
+  const t = useTranslations("members.subscriptionTab");
+  const statusLabel = useStatusLabels();
   const toast = useToast();
   const [extendDays, setExtendDays] = useState("");
   const [extendReason, setExtendReason] = useState("");
@@ -48,7 +59,7 @@ function SubscriptionCard({ subscription, onChanged }: { subscription: Subscript
   const busy =
     pauseState.loading || resumeState.loading || cancelState.loading || renewState.loading || extendState.loading;
 
-  const status = STATUS_LABELS[subscription.status] ?? { label: subscription.status, tone: "neutral" as const };
+  const status = statusLabel(subscription.status);
   const finished = subscription.status === "canceled" || subscription.status === "incomplete_expired";
 
   const handleExtend = async () => {
@@ -58,12 +69,12 @@ function SubscriptionCard({ subscription, onChanged }: { subscription: Subscript
       variables: { subscriptionId: subscription.id, days, reason: extendReason },
     });
     if (data?.extendSubscriptionPeriod?.success) {
-      toast(`Periodo extendido ${days} días`);
+      toast(t("periodExtended", { days }));
       setShowExtend(false);
       setExtendDays("");
       setExtendReason("");
     } else {
-      toast(data?.extendSubscriptionPeriod?.message ?? "No se pudo extender", "error");
+      toast(data?.extendSubscriptionPeriod?.message ?? t("extendFailed"), "error");
     }
   };
 
@@ -73,7 +84,7 @@ function SubscriptionCard({ subscription, onChanged }: { subscription: Subscript
         <div>
           <p className="text-sm font-medium text-zinc-900">{subscription.plan.name}</p>
           <p className="mt-0.5 text-xs text-zinc-400">
-            {formatCents(subscription.plan.amount, subscription.plan.currency)} / {subscription.plan.interval}
+            {formatCents(planPriceCents(subscription.plan), subscription.plan.currency)} / {subscription.plan.interval}
           </p>
         </div>
         <BadgeDot tone={status.tone} label={status.label} />
@@ -81,21 +92,21 @@ function SubscriptionCard({ subscription, onChanged }: { subscription: Subscript
 
       <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
         <div>
-          <dt className="text-zinc-400">Fin de periodo</dt>
+          <dt className="text-zinc-400">{t("periodEnd")}</dt>
           <dd className="text-zinc-700">{formatDate(subscription.currentPeriodEnd)}</dd>
         </div>
         <div>
-          <dt className="text-zinc-400">Próximo cobro</dt>
+          <dt className="text-zinc-400">{t("nextBilling")}</dt>
           <dd className="text-zinc-700">{formatDate(subscription.nextBillingDate)}</dd>
         </div>
         {subscription.failedPaymentAttempts > 0 ? (
           <div className="col-span-2">
-            <dt className="text-zinc-400">Intentos de cobro fallidos</dt>
+            <dt className="text-zinc-400">{t("failedAttempts")}</dt>
             <dd className="text-red-600">{subscription.failedPaymentAttempts}</dd>
           </div>
         ) : null}
         {subscription.cancelAtPeriodEnd ? (
-          <p className="col-span-2 text-amber-600">Se cancelará al final del periodo</p>
+          <p className="col-span-2 text-amber-600">{t("willCancelAtPeriodEnd")}</p>
         ) : null}
       </dl>
 
@@ -103,18 +114,18 @@ function SubscriptionCard({ subscription, onChanged }: { subscription: Subscript
         <div className="mt-4 flex flex-wrap gap-2 border-t border-zinc-100 pt-4">
           {subscription.status === "paused" ? (
             <Button size="sm" disabled={busy} onClick={() => resume({ variables: { subscriptionId: subscription.id } })}>
-              Reanudar
+              {t("resume")}
             </Button>
           ) : (
             <Button size="sm" disabled={busy} onClick={() => pause({ variables: { subscriptionId: subscription.id } })}>
-              Pausar
+              {t("pause")}
             </Button>
           )}
           <Button size="sm" disabled={busy} onClick={() => forceRenewal({ variables: { subscriptionId: subscription.id } })}>
-            Renovar ya
+            {t("renewNow")}
           </Button>
           <Button size="sm" disabled={busy} onClick={() => setShowExtend((value) => !value)}>
-            Extender
+            {t("extend")}
           </Button>
           <Button
             size="sm"
@@ -126,7 +137,7 @@ function SubscriptionCard({ subscription, onChanged }: { subscription: Subscript
               })
             }
           >
-            Cancelar
+            {t("cancel")}
           </Button>
         </div>
       ) : null}
@@ -134,15 +145,15 @@ function SubscriptionCard({ subscription, onChanged }: { subscription: Subscript
       {showExtend ? (
         <div className="mt-4 space-y-3 rounded-lg bg-zinc-50 p-4">
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Días">
+            <Field label={t("days")}>
               <Input type="number" min={1} value={extendDays} onChange={(event) => setExtendDays(event.target.value)} />
             </Field>
-            <Field label="Motivo" hint="Queda en el audit log">
+            <Field label={t("reason")} hint={t("reasonHint")}>
               <Input value={extendReason} onChange={(event) => setExtendReason(event.target.value)} />
             </Field>
           </div>
           <Button size="sm" variant="primary" onClick={handleExtend} disabled={extendState.loading || !extendDays || !extendReason}>
-            Confirmar extensión
+            {t("confirmExtend")}
           </Button>
         </div>
       ) : null}
@@ -151,6 +162,7 @@ function SubscriptionCard({ subscription, onChanged }: { subscription: Subscript
 }
 
 export function SubscriptionTab({ userId }: { userId: string }) {
+  const t = useTranslations("members.subscriptionTab");
   const toast = useToast();
   const [planId, setPlanId] = useState("");
 
@@ -172,11 +184,11 @@ export function SubscriptionTab({ userId }: { userId: string }) {
   const handleCreate = async () => {
     const { data: result } = await createSubscription({ variables: { subscription: { planId, userId } } });
     if (result?.createSubscription?.success) {
-      toast("Suscripción creada");
+      toast(t("subscriptionCreated"));
       setPlanId("");
       refetch();
     } else {
-      toast(result?.createSubscription?.message ?? "No se pudo crear la suscripción", "error");
+      toast(result?.createSubscription?.message ?? t("subscriptionCreateFailed"), "error");
     }
   };
 
@@ -187,7 +199,7 @@ export function SubscriptionTab({ userId }: { userId: string }) {
   return (
     <div className="space-y-4">
       {subscriptions.length === 0 ? (
-        <p className="py-4 text-center text-sm text-zinc-400">Sin suscripciones</p>
+        <p className="py-4 text-center text-sm text-zinc-400">{t("noSubscriptions")}</p>
       ) : (
         subscriptions.map((subscription) => (
           <SubscriptionCard key={subscription.id} subscription={subscription} onChanged={() => refetch()} />
@@ -197,13 +209,13 @@ export function SubscriptionTab({ userId }: { userId: string }) {
       {!hasOngoing ? (
         <div className="flex items-end gap-3 border-t border-zinc-100 pt-5">
           <div className="flex-1">
-            <Field label="Asignar plan">
+            <Field label={t("assignPlan")}>
               <Dropdown
                 options={(plans.data?.listPlans?.plans ?? []).map((plan) => ({
                   value: plan.id,
-                  label: `${plan.name} · ${formatCents(plan.amount, plan.currency)}`,
+                  label: `${plan.name} · ${formatCents(planPriceCents(plan), plan.currency)}`,
                 }))}
-                placeholder="Selecciona un plan…"
+                placeholder={t("selectPlan")}
                 searchable
                 value={planId}
                 onChange={setPlanId}
@@ -211,7 +223,7 @@ export function SubscriptionTab({ userId }: { userId: string }) {
             </Field>
           </div>
           <Button variant="primary" onClick={handleCreate} disabled={!planId || createState.loading}>
-            {createState.loading ? "…" : "Suscribir"}
+            {createState.loading ? "…" : t("subscribe")}
           </Button>
         </div>
       ) : null}

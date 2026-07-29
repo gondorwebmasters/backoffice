@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 
@@ -8,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/input";
 
 function LoginForm() {
+  const t = useTranslations("login");
   const router = useRouter();
   const searchParams = useSearchParams();
   const [emailOrNickname, setEmailOrNickname] = useState("");
@@ -27,13 +29,13 @@ function LoginForm() {
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
-        setError(data.message ?? "Error de autenticación");
+        setError(data.message ?? t("authError"));
         return;
       }
       router.push(searchParams.get("next") ?? "/");
       router.refresh();
     } catch {
-      setError("No se pudo conectar con el servidor");
+      setError(t("connectionError"));
     } finally {
       setLoading(false);
     }
@@ -45,11 +47,11 @@ function LoginForm() {
         <HeroAnimation />
         <div className="text-center">
           <h1 className="text-xl font-bold tracking-tight text-zinc-900">FitConnect</h1>
-          <p className="mt-1 text-sm text-zinc-500">Panel de administración</p>
+          <p className="mt-1 text-sm text-zinc-500">{t("subtitle")}</p>
         </div>
       </div>
       <div className="space-y-4 rounded-2xl border border-zinc-200/80 bg-white p-8 shadow-pop">
-        <Field label="Email o usuario">
+        <Field label={t("emailOrUsername")}>
           <Input
             value={emailOrNickname}
             onChange={(event) => setEmailOrNickname(event.target.value)}
@@ -58,7 +60,7 @@ function LoginForm() {
             required
           />
         </Field>
-        <Field label="Contraseña">
+        <Field label={t("password")}>
           <Input
             type="password"
             value={password}
@@ -69,7 +71,7 @@ function LoginForm() {
         </Field>
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
         <Button type="submit" variant="primary" className="w-full" disabled={loading}>
-          {loading ? "Entrando…" : "Entrar"}
+          {loading ? t("loggingIn") : t("login")}
         </Button>
       </div>
     </form>

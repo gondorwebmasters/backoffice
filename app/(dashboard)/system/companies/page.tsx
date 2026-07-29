@@ -2,6 +2,7 @@
 
 import { useQuery } from "@apollo/client";
 import { ChevronLeft, ChevronRight, Plus, Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { CreateCompanyForm, EditCompanyForm } from "@/components/system/company-form";
@@ -16,6 +17,7 @@ import { GET_COMPANIES } from "@/lib/graphql/companies";
 import type { Company } from "@/lib/graphql/types";
 
 export default function SystemCompaniesPage() {
+  const t = useTranslations("system.companies");
   const [search, setSearch] = useState("");
   const [query, setQuery] = useState("");
   // getCompanies pagina 1-based con páginas de 10 (company.service.ts)
@@ -40,7 +42,7 @@ export default function SystemCompaniesPage() {
   const columns: Column<Company>[] = [
     {
       key: "company",
-      header: "Empresa",
+      header: t("columns.company"),
       render: (company) => (
         <div className="flex items-center gap-3">
           <Avatar size="sm" name={company.name} url={company.logo?.url} />
@@ -51,11 +53,11 @@ export default function SystemCompaniesPage() {
         </div>
       ),
     },
-    { key: "phone", header: "Teléfono", render: (company) => <span className="text-zinc-600">{company.phoneNumber ?? "—"}</span> },
-    { key: "address", header: "Dirección", render: (company) => <span className="text-zinc-600">{company.address ?? "—"}</span> },
+    { key: "phone", header: t("columns.phone"), render: (company) => <span className="text-zinc-600">{company.phoneNumber ?? "—"}</span> },
+    { key: "address", header: t("columns.address"), render: (company) => <span className="text-zinc-600">{company.address ?? "—"}</span> },
     {
       key: "code",
-      header: "Código",
+      header: t("columns.code"),
       render: (company) => <span className="font-mono text-xs text-zinc-500">{company.code ?? "—"}</span>,
     },
   ];
@@ -66,12 +68,12 @@ export default function SystemCompaniesPage() {
         header={
           <>
             <PageHeader
-              title="Empresas"
-              subtitle="Todas las empresas de la plataforma · solo superadmin"
+              title={t("title")}
+              subtitle={t("subtitle")}
               actions={
                 <Button variant="primary" onClick={() => setCreating(true)}>
                   <Plus size={15} strokeWidth={2} />
-                  Nueva empresa
+                  {t("newCompany")}
                 </Button>
               }
             />
@@ -79,7 +81,7 @@ export default function SystemCompaniesPage() {
             <div className="relative mb-6 w-72">
               <Search size={15} strokeWidth={1.5} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
               <Input
-                placeholder="Buscar empresa…"
+                placeholder={t("searchPlaceholder")}
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 className="pl-9"
@@ -94,11 +96,11 @@ export default function SystemCompaniesPage() {
           rowKey={(company) => company.id}
           onRowClick={setSelected}
           loading={loading}
-          emptyMessage="Sin empresas"
+          emptyMessage={t("emptyTable")}
         />
 
         <div className="mt-4 flex items-center justify-end gap-2">
-          <span className="text-xs text-zinc-400">Página {page}</span>
+          <span className="text-xs text-zinc-400">{t("pageLabel", { page })}</span>
           <Button size="sm" variant="ghost" disabled={page === 1} onClick={() => setPage((value) => value - 1)}>
             <ChevronLeft size={15} strokeWidth={1.5} />
           </Button>
@@ -113,7 +115,7 @@ export default function SystemCompaniesPage() {
         </div>
       </PageShell>
 
-      <SlideOver open={creating} onClose={() => setCreating(false)} title="Nueva empresa" subtitle="Alta de empresa en la plataforma">
+      <SlideOver open={creating} onClose={() => setCreating(false)} title={t("newCompany")} subtitle={t("newCompanySubtitle")}>
         <CreateCompanyForm
           onDone={() => {
             setCreating(false);

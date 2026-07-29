@@ -2,6 +2,7 @@
 
 import { useMutation } from "@apollo/client";
 import { Eye, EyeOff } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ function PasswordInput({
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   autoComplete: string;
 }) {
+  const t = useTranslations("profile.passwordForm");
   const [visible, setVisible] = useState(false);
   return (
     <div className="relative">
@@ -35,7 +37,7 @@ function PasswordInput({
       <button
         type="button"
         onClick={() => setVisible((current) => !current)}
-        aria-label={visible ? "Ocultar contraseña" : "Mostrar contraseña"}
+        aria-label={visible ? t("hidePassword") : t("showPassword")}
         className="absolute right-1 top-1/2 -translate-y-1/2 rounded-md p-2 text-zinc-400 transition-colors hover:text-zinc-600"
       >
         {visible ? <EyeOff size={15} strokeWidth={1.5} /> : <Eye size={15} strokeWidth={1.5} />}
@@ -45,6 +47,7 @@ function PasswordInput({
 }
 
 export function PasswordForm() {
+  const t = useTranslations("profile.passwordForm");
   const toast = useToast();
   const [form, setForm] = useState(EMPTY);
   const [updatePassword, { loading }] = useMutation(UPDATE_PASSWORD);
@@ -60,25 +63,25 @@ export function PasswordForm() {
     try {
       const { data } = await updatePassword({ variables: { password: form } });
       if (data?.updatePassword?.success) {
-        toast("Contraseña actualizada");
+        toast(t("updated"));
         setForm(EMPTY);
       } else {
-        toast(data?.updatePassword?.message ?? "No se pudo cambiar la contraseña", "error");
+        toast(data?.updatePassword?.message ?? t("updateFailed"), "error");
       }
     } catch {
-      toast("No se pudo cambiar la contraseña", "error");
+      toast(t("updateFailed"), "error");
     }
   };
 
   return (
     <section className="rounded-2xl border border-zinc-200/80 bg-white shadow-card transition-shadow hover:shadow-card-hover">
       <header className="border-b border-zinc-100 px-7 py-5">
-        <h2 className="text-sm font-semibold text-zinc-900">Seguridad</h2>
-        <p className="text-xs text-zinc-400">Cambia tu contraseña de acceso</p>
+        <h2 className="text-sm font-semibold text-zinc-900">{t("title")}</h2>
+        <p className="text-xs text-zinc-400">{t("subtitle")}</p>
       </header>
 
       <form onSubmit={handleSubmit} className="space-y-5 p-7">
-        <Field label="Contraseña actual">
+        <Field label={t("currentPassword")}>
           <PasswordInput
             value={form.currentPassword}
             onChange={set("currentPassword")}
@@ -86,10 +89,10 @@ export function PasswordForm() {
           />
         </Field>
         <div className="grid gap-5 sm:grid-cols-2">
-          <Field label="Nueva contraseña" hint="Mínimo 6 caracteres">
+          <Field label={t("newPassword")} hint={t("newPasswordHint")}>
             <PasswordInput value={form.newPassword} onChange={set("newPassword")} autoComplete="new-password" />
           </Field>
-          <Field label="Confirmar contraseña">
+          <Field label={t("confirmPassword")}>
             <PasswordInput
               value={form.confirmPassword}
               onChange={set("confirmPassword")}
@@ -99,13 +102,13 @@ export function PasswordForm() {
         </div>
         {mismatch ? (
           <p role="alert" className="text-xs text-red-500">
-            Las contraseñas no coinciden
+            {t("mismatch")}
           </p>
         ) : null}
 
         <div className="flex justify-end pt-1">
           <Button type="submit" variant="primary" disabled={loading || mismatch}>
-            {loading ? "Actualizando…" : "Cambiar contraseña"}
+            {loading ? t("updating") : t("changePassword")}
           </Button>
         </div>
       </form>

@@ -2,6 +2,7 @@
 
 import { useMutation } from "@apollo/client";
 import { UserX } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Avatar } from "@/components/ui/avatar";
@@ -26,6 +27,7 @@ interface SchedulePanelProps {
 }
 
 export function SchedulePanel({ schedule, onClose, onChanged }: SchedulePanelProps) {
+  const t = useTranslations("calendar.schedulePanel");
   const toast = useToast();
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -39,11 +41,11 @@ export function SchedulePanel({ schedule, onClose, onChanged }: SchedulePanelPro
     if (!schedule) return;
     const { data } = await removeSchedule({ variables: { scheduleId: schedule.id } });
     if (data?.removeSchedule?.success) {
-      toast("Clase eliminada");
+      toast(t("deleted"));
       onChanged();
       onClose();
     } else {
-      toast(data?.removeSchedule?.message ?? "No se pudo eliminar", "error");
+      toast(data?.removeSchedule?.message ?? t("deleteFailed"), "error");
       setConfirmDelete(false);
     }
   };
@@ -58,14 +60,14 @@ export function SchedulePanel({ schedule, onClose, onChanged }: SchedulePanelPro
         schedule ? (
           <>
             <Button variant="danger" onClick={() => setConfirmDelete(true)}>
-              Eliminar
+              {t("delete")}
             </Button>
             <Button
               variant={cancelled ? "primary" : "secondary"}
               disabled={statusState.loading}
               onClick={() => changeStatus({ variables: { scheduleId: schedule.id } })}
             >
-              {statusState.loading ? "…" : cancelled ? "Reactivar clase" : "Cancelar clase"}
+              {statusState.loading ? "…" : cancelled ? t("reactivate") : t("cancelClass")}
             </Button>
           </>
         ) : undefined
@@ -77,10 +79,10 @@ export function SchedulePanel({ schedule, onClose, onChanged }: SchedulePanelPro
             <div className="flex items-center justify-between">
               <BadgeDot
                 tone={cancelled ? "negative" : "positive"}
-                label={cancelled ? "Cancelada" : "Disponible"}
+                label={cancelled ? t("cancelled") : t("available")}
               />
               <p className="text-sm font-medium tabular-nums text-zinc-700">
-                {schedule.users?.length ?? 0}/{schedule.maxUsers} <span className="font-normal text-zinc-400">plazas</span>
+                {schedule.users?.length ?? 0}/{schedule.maxUsers} <span className="font-normal text-zinc-400">{t("spots")}</span>
               </p>
             </div>
             {!cancelled ? (
@@ -101,21 +103,21 @@ export function SchedulePanel({ schedule, onClose, onChanged }: SchedulePanelPro
 
           <dl className="grid grid-cols-2 gap-3 text-sm">
             <div className="rounded-xl border border-zinc-200/80 bg-white p-3 shadow-sm">
-              <dt className="text-xs uppercase tracking-wider text-zinc-400">Tipo</dt>
+              <dt className="text-xs uppercase tracking-wider text-zinc-400">{t("type")}</dt>
               <dd className="mt-0.5 font-medium text-zinc-700">{schedule.type}</dd>
             </div>
             <div className="rounded-xl border border-zinc-200/80 bg-white p-3 shadow-sm">
-              <dt className="text-xs uppercase tracking-wider text-zinc-400">Entrenador</dt>
+              <dt className="text-xs uppercase tracking-wider text-zinc-400">{t("trainer")}</dt>
               <dd className="mt-0.5 font-medium text-zinc-700">{fullName(schedule.admin)}</dd>
             </div>
           </dl>
 
           <section>
             <h3 className="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-400">
-              Asistentes ({schedule.users?.length ?? 0})
+              {t("attendees", { count: schedule.users?.length ?? 0 })}
             </h3>
             {(schedule.users ?? []).length === 0 ? (
-              <p className="py-3 text-sm text-zinc-400">Nadie apuntado todavía</p>
+              <p className="py-3 text-sm text-zinc-400">{t("noAttendees")}</p>
             ) : (
               <ul className="overflow-hidden rounded-xl border border-zinc-200/80">
                 {(schedule.users ?? []).map((user, index) => (
@@ -131,7 +133,7 @@ export function SchedulePanel({ schedule, onClose, onChanged }: SchedulePanelPro
                     <button
                       onClick={() => removeUser({ variables: { scheduleId: schedule.id, userId: user.id } })}
                       className="rounded-lg p-1.5 text-zinc-300 transition-colors hover:bg-red-50 hover:text-red-500 active:scale-90"
-                      title="Quitar de la clase"
+                      title={t("removeFromClass")}
                     >
                       <UserX size={15} strokeWidth={1.5} />
                     </button>
@@ -141,7 +143,7 @@ export function SchedulePanel({ schedule, onClose, onChanged }: SchedulePanelPro
             )}
             {(schedule.waitListUsers ?? []).length > 0 ? (
               <p className="mt-3 text-xs text-zinc-400">
-                Lista de espera: {(schedule.waitListUsers ?? []).map((user) => fullName(user)).join(", ")}
+                {t("waitList")}: {(schedule.waitListUsers ?? []).map((user) => fullName(user)).join(", ")}
               </p>
             ) : null}
           </section>
@@ -150,9 +152,9 @@ export function SchedulePanel({ schedule, onClose, onChanged }: SchedulePanelPro
 
       <ConfirmDialog
         open={confirmDelete}
-        title="Eliminar clase"
-        description="Se eliminará la clase y las reservas asociadas. Esta acción no se puede deshacer."
-        confirmLabel="Eliminar"
+        title={t("deleteClass")}
+        description={t("deleteClassDescription")}
+        confirmLabel={t("delete")}
         danger
         loading={removeState.loading}
         onConfirm={handleDelete}

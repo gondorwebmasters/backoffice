@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import type { SubscriptionsStat } from "@/lib/graphql/types";
@@ -7,12 +8,14 @@ import type { SubscriptionsStat } from "@/lib/graphql/types";
 import { CHART_COLORS, CHART_TOOLTIP_STYLE } from "./chart-theme";
 
 export function PlanDistributionChart({ stats, loading }: { stats: SubscriptionsStat[]; loading?: boolean }) {
+  const t = useTranslations("dashboard.planDistributionChart");
+
   if (loading) {
     return <div className="h-48 animate-pulse rounded-lg bg-zinc-100" />;
   }
 
   if (stats.length === 0) {
-    return <p className="py-16 text-center text-sm text-zinc-400">Sin suscripciones activas</p>;
+    return <p className="py-16 text-center text-sm text-zinc-400">{t("empty")}</p>;
   }
 
   const sorted = [...stats].sort((a, b) => b.count - a.count);
@@ -32,7 +35,7 @@ export function PlanDistributionChart({ stats, loading }: { stats: Subscriptions
         />
         <Tooltip
           {...CHART_TOOLTIP_STYLE}
-          formatter={(value) => [`${value} suscripciones`]}
+          formatter={(value) => [t("subscriptions", { value: Number(value) })]}
         />
         <Bar dataKey="count" radius={[0, 8, 8, 0]} maxBarSize={18} animationDuration={500} animationEasing="ease-out">
           {sorted.map((stat, index) => (

@@ -1,6 +1,7 @@
 "use client";
 
 import { Moon, Sun, Users } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
@@ -27,6 +28,7 @@ export function ScheduleBlock({
   style: React.CSSProperties;
   onClick: () => void;
 }) {
+  const t = useTranslations("calendar.scheduleBlock");
   const cancelled = schedule.state === "cancelled";
   const attendees = schedule.users?.length ?? 0;
   const ratio = Math.min(occupancyRatio(schedule), 1);
@@ -57,7 +59,7 @@ export function ScheduleBlock({
             {schedule.title}
           </p>
           <p className="mt-0.5 tabular-nums text-zinc-500">
-            {formatTime(schedule.startDate)}–{formatTime(schedule.endDate)} · {morning ? "Turno de mañana" : "Turno de tarde"}
+            {formatTime(schedule.startDate)}–{formatTime(schedule.endDate)} · {morning ? t("morningShift") : t("afternoonShift")}
           </p>
           {!cancelled ? (
             <div className="mt-1.5 flex items-center gap-1.5">
@@ -72,7 +74,7 @@ export function ScheduleBlock({
               </span>
             </div>
           ) : (
-            <p className="mt-1 font-medium text-red-400">Cancelada</p>
+            <p className="mt-1 font-medium text-red-400">{t("cancelled")}</p>
           )}
         </div>
       }

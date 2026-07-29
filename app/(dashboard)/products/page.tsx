@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery } from "@apollo/client";
 import { Plus, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ import type { Product } from "@/lib/graphql/types";
 const PAGE_SIZE = 10;
 
 export default function ProductsPage() {
+  const t = useTranslations("products");
   const toast = useToast();
   const [creating, setCreating] = useState(false);
   const [removing, setRemoving] = useState<Product | null>(null);
@@ -44,12 +46,12 @@ export default function ProductsPage() {
       },
     });
     if (result?.createProduct?.success) {
-      toast("Producto creado");
+      toast(t("created"));
       setForm({ name: "", description: "", price: "" });
       setCreating(false);
       refetch();
     } else {
-      toast(result?.createProduct?.message ?? "No se pudo crear", "error");
+      toast(result?.createProduct?.message ?? t("createFailed"), "error");
     }
   };
 
@@ -57,10 +59,10 @@ export default function ProductsPage() {
     if (!removing) return;
     const { data: result } = await removeProduct({ variables: { ids: [removing.id] } });
     if (result?.removeProduct?.success) {
-      toast("Producto eliminado");
+      toast(t("removed"));
       refetch();
     } else {
-      toast(result?.removeProduct?.message ?? "No se pudo eliminar", "error");
+      toast(result?.removeProduct?.message ?? t("removeFailed"), "error");
     }
     setRemoving(null);
   };
@@ -68,7 +70,7 @@ export default function ProductsPage() {
   const columns: Column<Product>[] = [
     {
       key: "product",
-      header: "Producto",
+      header: t("columns.product"),
       render: (product) => (
         <div className="flex items-center gap-3">
           {product.pictures?.[0]?.url ? (
@@ -86,7 +88,7 @@ export default function ProductsPage() {
     },
     {
       key: "price",
-      header: "Precio",
+      header: t("columns.price"),
       // El precio de producto va en euros (la app móvil muestra `{price}€` tal cual)
       render: (product) => <span className="tabular-nums text-zinc-700">{product.price.toFixed(2).replace(".", ",")} €</span>,
     },
@@ -101,7 +103,7 @@ export default function ProductsPage() {
             setRemoving(product);
           }}
           className="rounded-lg p-1.5 text-zinc-300 transition-colors hover:bg-red-50 hover:text-red-500"
-          title="Eliminar producto"
+          title={t("deleteProduct")}
         >
           <Trash2 size={15} strokeWidth={1.5} />
         </button>
@@ -114,12 +116,12 @@ export default function ProductsPage() {
       <PageShell
         header={
           <PageHeader
-            title="Productos"
-            subtitle="Tienda de la empresa"
+            title={t("title")}
+            subtitle={t("subtitle")}
             actions={
               <Button variant="primary" onClick={() => setCreating(true)}>
                 <Plus size={15} strokeWidth={1.5} />
-                Nuevo producto
+                {t("newProduct")}
               </Button>
             }
           />
@@ -130,42 +132,42 @@ export default function ProductsPage() {
           rows={products}
           rowKey={(product) => product.id}
           loading={loading}
-          emptyMessage="Aún no hay productos en la tienda"
+          emptyMessage={t("emptyTable")}
         />
-        <Pagination page={page} pageCount={pageCount} onChange={setPage} totalLabel={`${allProducts.length} productos`} />
+        <Pagination page={page} pageCount={pageCount} onChange={setPage} totalLabel={t("totalLabel", { count: allProducts.length })} />
       </PageShell>
 
       <SlideOver
         open={creating}
         onClose={() => setCreating(false)}
-        title="Nuevo producto"
-        subtitle="La imagen se puede añadir después desde la app"
+        title={t("newProduct")}
+        subtitle={t("createSubtitle")}
         footer={
           <>
             <Button variant="ghost" onClick={() => setCreating(false)}>
-              Cancelar
+              {t("cancel")}
             </Button>
             <Button
               variant="primary"
               onClick={handleCreate}
               disabled={createState.loading || !form.name || !form.description || !form.price}
             >
-              {createState.loading ? "Creando…" : "Crear producto"}
+              {createState.loading ? t("creating") : t("createProduct")}
             </Button>
           </>
         }
       >
         <div className="space-y-5">
-          <Field label="Nombre">
+          <Field label={t("name")}>
             <Input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
           </Field>
-          <Field label="Descripción">
+          <Field label={t("description")}>
             <Textarea
               value={form.description}
               onChange={(event) => setForm({ ...form, description: event.target.value })}
             />
           </Field>
-          <Field label="Precio (€)">
+          <Field label={t("price")}>
             <Input
               type="number"
               min={0}
@@ -179,9 +181,9 @@ export default function ProductsPage() {
 
       <ConfirmDialog
         open={Boolean(removing)}
-        title="Eliminar producto"
-        description={`Se eliminará "${removing?.name}" de la tienda.`}
-        confirmLabel="Eliminar"
+        title={t("deleteProduct")}
+        description={t("deleteConfirmDescription", { name: removing?.name ?? "" })}
+        confirmLabel={t("delete")}
         danger
         loading={removeState.loading}
         onConfirm={handleRemove}

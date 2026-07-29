@@ -72,6 +72,18 @@ export const CREATE_USER = gql`
   }
 `;
 
+export const CREATE_COMPANY_MEMBER = gql`
+  mutation CreateCompanyMember($user: CreateCompanyMemberInput!) {
+    createCompanyMember(user: $user) {
+      success
+      message
+      user {
+        id
+      }
+    }
+  }
+`;
+
 export const UPDATE_USER = gql`
   ${USER_LIST_FIELDS}
   mutation UpdateUser($user: UpdateUserInput!) {

@@ -2,6 +2,7 @@
 
 import { useApolloClient, useMutation, useQuery } from "@apollo/client";
 import { Building2, Check, ChevronsUpDown, Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
 import { SET_ACTIVE_COMPANY } from "@/lib/graphql/auth";
@@ -18,6 +19,7 @@ type CompanyOptionsData = {
 
 export function CompanySwitcher() {
   const { user, companies } = useSession();
+  const t = useTranslations("companySwitcher");
   const client = useApolloClient();
   const [setActiveCompany, { loading: switching }] = useMutation(SET_ACTIVE_COMPANY);
 
@@ -95,7 +97,7 @@ export function CompanySwitcher() {
       >
         <Building2 size={13} strokeWidth={1.5} className="text-zinc-400" />
         <span className="max-w-40 truncate">
-          {switching ? "Cambiando…" : (activeCompany?.name ?? "Seleccionar empresa")}
+          {switching ? t("switching") : (activeCompany?.name ?? t("select"))}
         </span>
         <ChevronsUpDown size={12} strokeWidth={1.5} className="text-zinc-400" />
       </button>
@@ -108,7 +110,7 @@ export function CompanySwitcher() {
               autoFocus
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Buscar empresa…"
+              placeholder={t("searchPlaceholder")}
               className="h-9 w-full bg-transparent text-xs text-zinc-900 placeholder:text-zinc-400 focus:outline-none"
             />
           </div>
@@ -133,7 +135,7 @@ export function CompanySwitcher() {
             ))}
             {options.length === 0 ? (
               <li className="px-3 py-6 text-center text-xs text-zinc-400">
-                {loadingOptions ? "Cargando…" : "Sin resultados"}
+                {loadingOptions ? t("loading") : t("noResults")}
               </li>
             ) : null}
           </ul>

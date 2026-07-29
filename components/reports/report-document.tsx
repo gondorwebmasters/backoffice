@@ -5,7 +5,7 @@ import { Document, Image, Page, StyleSheet, Text, View } from "@react-pdf/render
 import type { ReportMetricsData } from "@/lib/graphql/reports";
 
 import { FULL_CHART_LAYOUT } from "./chart-geometry";
-import type { MetricId } from "./metrics-catalog";
+import type { MetricId, ReportLabels } from "./metrics-catalog";
 import { PdfAreaChart } from "./pdf-area-chart";
 import { PdfBarChart } from "./pdf-bar-chart";
 import { PdfVerticalBarChart } from "./pdf-vertical-bar-chart";
@@ -94,16 +94,12 @@ const styles = StyleSheet.create({
   },
 });
 
-function formatEuros(cents: number): string {
-  return new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" }).format(cents);
-}
-
 interface ReportDocumentProps {
   selectedMetrics: MetricId[];
   data: ReportMetricsData;
   gymName: string;
-  owner: string;
-  generatedAt: Date;
+  locale: string;
+  labels: ReportLabels;
   logoUrl?: string;
   accentColor?: string;
 }
@@ -112,28 +108,27 @@ export function ReportDocument({
   selectedMetrics,
   data,
   gymName,
-  owner,
-  generatedAt,
+  locale,
+  labels,
   logoUrl,
   accentColor = "#EF4444",
 }: ReportDocumentProps) {
+  const formatEuros = (cents: number) => new Intl.NumberFormat(locale, { style: "currency", currency: "EUR" }).format(cents);
   const has = (id: MetricId) => selectedMetrics.includes(id);
 
   const kpis: { id: MetricId; label: string; value: string }[] = [
-    has("totalUsers") ? { id: "totalUsers", label: "Usuarios dados de alta", value: String(data.totalUsers) } : null,
-    has("churnedUsers") ? { id: "churnedUsers", label: "Usuarios de baja", value: String(data.churnedUsers) } : null,
+    has("totalUsers") ? { id: "totalUsers", label: labels.kpis.totalUsers, value: String(data.totalUsers) } : null,
+    has("churnedUsers") ? { id: "churnedUsers", label: labels.kpis.churnedUsers, value: String(data.churnedUsers) } : null,
     has("totalRevenue")
-      ? { id: "totalRevenue", label: "Ingresos totales", value: formatEuros(data.totalRevenue) }
+      ? { id: "totalRevenue", label: labels.kpis.totalRevenue, value: formatEuros(data.totalRevenue) }
       : null,
     has("productsSold")
-      ? { id: "productsSold", label: "Productos vendidos", value: String(data.productsSold) }
+      ? { id: "productsSold", label: labels.kpis.productsSold, value: String(data.productsSold) }
       : null,
     has("promotionsApplied")
-      ? { id: "promotionsApplied", label: "Promociones aplicadas", value: String(data.promotionsApplied) }
+      ? { id: "promotionsApplied", label: labels.kpis.promotionsApplied, value: String(data.promotionsApplied) }
       : null,
   ].filter((kpi): kpi is { id: MetricId; label: string; value: string } => kpi !== null);
-
-  const dateLabel = new Intl.DateTimeFormat("es-ES", { dateStyle: "long" }).format(generatedAt);
 
   const metricSections: { key: string; title: string; chart: ReactNode; list: ReactNode }[] = [];
 
@@ -141,13 +136,13 @@ export function ReportDocument({
     const points = data.newUsersByMonth.map((item) => ({ label: item.month, value: item.count }));
     metricSections.push({
       key: "newUsersByMonth",
-      title: "Altas por mes",
+      title: labels.sections.newUsersByMonth,
       chart: points.length > 0 ? <PdfVerticalBarChart layout={FULL_CHART_LAYOUT} color={accentColor} data={points} /> : null,
       list:
         points.length > 0 ? (
           <PdfBarChart color={accentColor} data={points} />
         ) : (
-          <Text style={styles.empty}>Sin datos en el período.</Text>
+          <Text style={styles.empty}>{labels.noDataPeriod}</Text>
         ),
     });
   }
@@ -156,13 +151,13 @@ export function ReportDocument({
     const points = data.churnedUsersByMonth.map((item) => ({ label: item.month, value: item.count }));
     metricSections.push({
       key: "churnedUsersByMonth",
-      title: "Bajas por mes",
+      title: labels.sections.churnedUsersByMonth,
       chart: points.length > 0 ? <PdfVerticalBarChart layout={FULL_CHART_LAYOUT} color={accentColor} data={points} /> : null,
       list:
         points.length > 0 ? (
           <PdfBarChart color={accentColor} data={points} />
         ) : (
-          <Text style={styles.empty}>Sin datos en el período.</Text>
+          <Text style={styles.empty}>{labels.noDataPeriod}</Text>
         ),
     });
   }
@@ -171,13 +166,13 @@ export function ReportDocument({
     const points = data.usersByAgeRange.map((item) => ({ label: item.range, value: item.count }));
     metricSections.push({
       key: "usersByAgeRange",
-      title: "Clientes por rango de edad",
+      title: labels.sections.usersByAgeRange,
       chart: points.length > 0 ? <PdfVerticalBarChart layout={FULL_CHART_LAYOUT} color={accentColor} data={points} /> : null,
       list:
         points.length > 0 ? (
           <PdfBarChart color={accentColor} data={points} />
         ) : (
-          <Text style={styles.empty}>Sin datos disponibles.</Text>
+          <Text style={styles.empty}>{labels.noDataAvailable}</Text>
         ),
     });
   }
@@ -186,7 +181,7 @@ export function ReportDocument({
     const points = data.revenueByMonth.map((item) => ({ label: item.month, value: item.amount }));
     metricSections.push({
       key: "revenueByMonth",
-      title: "Ingresos por mes",
+      title: labels.sections.revenueByMonth,
       chart:
         points.length > 0 ? (
           <PdfAreaChart layout={FULL_CHART_LAYOUT} color={accentColor} data={points} formatValue={formatEuros} />
@@ -195,7 +190,7 @@ export function ReportDocument({
         points.length > 0 ? (
           <PdfBarChart color={accentColor} data={points} formatValue={formatEuros} />
         ) : (
-          <Text style={styles.empty}>Sin datos disponibles.</Text>
+          <Text style={styles.empty}>{labels.noDataAvailable}</Text>
         ),
     });
   }
@@ -204,13 +199,13 @@ export function ReportDocument({
     const points = data.promotionsAppliedByMonth.map((item) => ({ label: item.month, value: item.count }));
     metricSections.push({
       key: "promotionsAppliedByMonth",
-      title: "Promociones aplicadas por mes",
+      title: labels.sections.promotionsAppliedByMonth,
       chart: points.length > 0 ? <PdfVerticalBarChart layout={FULL_CHART_LAYOUT} color={accentColor} data={points} /> : null,
       list:
         points.length > 0 ? (
           <PdfBarChart color={accentColor} data={points} />
         ) : (
-          <Text style={styles.empty}>Sin datos en el período.</Text>
+          <Text style={styles.empty}>{labels.noDataPeriod}</Text>
         ),
     });
   }
@@ -222,18 +217,16 @@ export function ReportDocument({
 
         <View style={[styles.header, { borderBottomColor: accentColor }]} fixed>
           <Text style={styles.headerTitle}>{gymName}</Text>
-          <Text style={styles.headerSubtitle}>
-            Owner: {owner} · Generado el {dateLabel}
-          </Text>
+          <Text style={styles.headerSubtitle}>{labels.subtitle}</Text>
         </View>
 
         {selectedMetrics.length === 0 ? (
-          <Text style={styles.empty}>No hay métricas seleccionadas. Marca al menos una en el panel izquierdo.</Text>
+          <Text style={styles.empty}>{labels.noMetricsSelected}</Text>
         ) : null}
 
         {kpis.length > 0 ? (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Resumen</Text>
+            <Text style={styles.sectionTitle}>{labels.summary}</Text>
             <View style={styles.kpiRow}>
               {kpis.map((kpi) => (
                 <View key={kpi.id} style={styles.kpiCard}>
@@ -254,7 +247,7 @@ export function ReportDocument({
         ))}
 
         <Text style={styles.footer} fixed>
-          FitConnect 2026 - Todos los derechos reservados
+          {labels.footer}
         </Text>
       </Page>
     </Document>

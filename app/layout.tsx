@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 import type { ReactNode } from "react";
 
 import { ThemeProvider } from "@/components/providers/theme-provider";
@@ -21,16 +23,21 @@ export const metadata: Metadata = {
   description: "Panel de administración de FitConnect",
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="es" suppressHydrationWarning className={jakarta.variable}>
+    <html lang={locale} suppressHydrationWarning className={jakarta.variable}>
       <body className="font-sans">
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
-        <ThemeProvider>
-          <ApolloWrapper>
-            <ToastProvider>{children}</ToastProvider>
-          </ApolloWrapper>
-        </ThemeProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <ThemeProvider>
+            <ApolloWrapper>
+              <ToastProvider>{children}</ToastProvider>
+            </ApolloWrapper>
+          </ThemeProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

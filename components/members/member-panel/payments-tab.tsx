@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery } from "@apollo/client";
+import { useTranslations } from "next-intl";
 
 import { BadgeDot } from "@/components/ui/badge-dot";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,7 @@ const TRANSACTION_TONES = {
 } as const;
 
 export function PaymentsTab({ userId }: { userId: string }) {
+  const t = useTranslations("members.paymentsTab");
   const toast = useToast();
 
   const invoices = useQuery<{ listUserInvoices: { invoices: Invoice[] | null } }>(LIST_USER_INVOICES, {
@@ -49,14 +51,14 @@ export function PaymentsTab({ userId }: { userId: string }) {
 
   const handleRefund = async (transaction: Transaction) => {
     const { data } = await refund({ variables: { input: { transactionId: transaction.id } } });
-    if (data?.refundTransaction?.success) toast("Reembolso emitido");
-    else toast(data?.refundTransaction?.message ?? "No se pudo reembolsar", "error");
+    if (data?.refundTransaction?.success) toast(t("refunded"));
+    else toast(data?.refundTransaction?.message ?? t("refundFailed"), "error");
   };
 
   return (
     <div className="space-y-8">
       <section>
-        <h3 className="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-400">Facturas</h3>
+        <h3 className="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-400">{t("invoices")}</h3>
         {invoices.loading && !invoices.data ? (
           <div className="h-20 animate-pulse rounded-lg bg-zinc-50" />
         ) : (
@@ -67,7 +69,7 @@ export function PaymentsTab({ userId }: { userId: string }) {
                   <p className="text-sm text-zinc-700">{invoice.invoiceNumber ?? invoice.id.slice(0, 8)}</p>
                   <p className="text-xs text-zinc-400">
                     {formatDate(invoice.created_at)}
-                    {invoice.isOverdue ? " · vencida" : ""}
+                    {invoice.isOverdue ? t("overdue") : ""}
                   </p>
                 </div>
                 <span className="text-sm tabular-nums text-zinc-700">{invoice.formattedTotal}</span>
@@ -81,20 +83,20 @@ export function PaymentsTab({ userId }: { userId: string }) {
                     variant="ghost"
                     onClick={() => voidInvoice({ variables: { invoiceId: invoice.id } })}
                   >
-                    Anular
+                    {t("void")}
                   </Button>
                 ) : null}
               </li>
             ))}
             {(invoices.data?.listUserInvoices?.invoices ?? []).length === 0 ? (
-              <li className="py-4 text-center text-sm text-zinc-400">Sin facturas</li>
+              <li className="py-4 text-center text-sm text-zinc-400">{t("noInvoices")}</li>
             ) : null}
           </ul>
         )}
       </section>
 
       <section>
-        <h3 className="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-400">Transacciones</h3>
+        <h3 className="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-400">{t("transactions")}</h3>
         {transactions.loading && !transactions.data ? (
           <div className="h-20 animate-pulse rounded-lg bg-zinc-50" />
         ) : (
@@ -116,7 +118,7 @@ export function PaymentsTab({ userId }: { userId: string }) {
                 <BadgeDot tone={TRANSACTION_TONES[transaction.status] ?? "neutral"} label={transaction.status} />
                 {transaction.status === "succeeded" && transaction.amountRefunded === 0 ? (
                   <Button size="sm" variant="ghost" onClick={() => handleRefund(transaction)}>
-                    Reembolsar
+                    {t("refund")}
                   </Button>
                 ) : null}
                 {transaction.status === "failed" ? (
@@ -125,13 +127,13 @@ export function PaymentsTab({ userId }: { userId: string }) {
                     variant="ghost"
                     onClick={() => retry({ variables: { transactionId: transaction.id } })}
                   >
-                    Reintentar
+                    {t("retry")}
                   </Button>
                 ) : null}
               </li>
             ))}
             {(transactions.data?.listUserTransactions?.transactions ?? []).length === 0 ? (
-              <li className="py-4 text-center text-sm text-zinc-400">Sin transacciones</li>
+              <li className="py-4 text-center text-sm text-zinc-400">{t("noTransactions")}</li>
             ) : null}
           </ul>
         )}

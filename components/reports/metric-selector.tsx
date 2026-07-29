@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -11,6 +13,7 @@ interface MetricSelectorProps {
 }
 
 export function MetricSelector({ selected, onChange }: MetricSelectorProps) {
+  const t = useTranslations("reports.metrics");
   const toggle = (id: MetricId) => {
     const next = new Set(selected);
     if (next.has(id)) next.delete(id);
@@ -26,22 +29,22 @@ export function MetricSelector({ selected, onChange }: MetricSelectorProps) {
     <div className="space-y-6">
       <div className="flex flex-wrap gap-2">
         <Button size="sm" variant="secondary" onClick={selectAll}>
-          Seleccionar todo
+          {t("selectAll")}
         </Button>
         <Button size="sm" variant="ghost" onClick={clearAll}>
-          Limpiar selección
+          {t("clearSelection")}
         </Button>
         <Button size="sm" variant="ghost" onClick={() => selectOnly(metricsInGroup("financial"))}>
-          Solo ingresos
+          {t("onlyRevenue")}
         </Button>
         <Button size="sm" variant="ghost" onClick={() => selectOnly(metricsInGroup("users"))}>
-          Solo usuarios
+          {t("onlyUsers")}
         </Button>
       </div>
 
       {METRIC_GROUPS.map((group) => (
         <div key={group.id}>
-          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-400">{group.label}</h3>
+          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-400">{t(`groups.${group.id}`)}</h3>
           <div className="space-y-2">
             {METRICS.filter((metric) => metric.group === group.id).map((metric) => (
               <label
@@ -49,7 +52,7 @@ export function MetricSelector({ selected, onChange }: MetricSelectorProps) {
                 className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm text-zinc-700 transition-colors hover:bg-zinc-50"
               >
                 <Checkbox checked={selected.has(metric.id)} onChange={() => toggle(metric.id)} />
-                {metric.label}
+                {t(`ids.${metric.id}`)}
               </label>
             ))}
           </div>

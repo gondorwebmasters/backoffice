@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery } from "@apollo/client";
 import { Copy } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -19,6 +20,7 @@ type CompaniesData = { getCompanies: { company: Company | null; companies: Compa
 type UsersData = { getUsers: { users: User[] | null } };
 
 export default function OnboardingSettingsPage() {
+  const t = useTranslations("settings.onboarding");
   const toast = useToast();
   const { user } = useSession();
   const companyId = user?.activeCompanyId;
@@ -44,7 +46,7 @@ export default function OnboardingSettingsPage() {
   const handleCopy = async () => {
     if (!code) return;
     await navigator.clipboard.writeText(code);
-    toast("Código copiado al portapapeles");
+    toast(t("codeCopied"));
   };
 
   const handleSave = async () => {
@@ -78,9 +80,9 @@ export default function OnboardingSettingsPage() {
       },
     });
     if (result?.updateCompany?.success) {
-      toast("Código de acceso actualizado");
+      toast(t("codeUpdated"));
     } else {
-      toast(result?.updateCompany?.message ?? "No se pudo actualizar el código", "error");
+      toast(result?.updateCompany?.message ?? t("codeUpdateFailed"), "error");
     }
   };
 
@@ -92,14 +94,14 @@ export default function OnboardingSettingsPage() {
     <div className="max-w-2xl space-y-6">
       <section className="rounded-2xl border border-zinc-200/80 bg-white shadow-card">
         <header className="border-b border-zinc-100 px-7 py-5">
-          <h2 className="text-sm font-semibold text-zinc-900">Código de acceso</h2>
-          <p className="text-xs text-zinc-400">Los miembros lo usan en la app para solicitar ingreso</p>
+          <h2 className="text-sm font-semibold text-zinc-900">{t("accessCode")}</h2>
+          <p className="text-xs text-zinc-400">{t("accessCodeSubtitle")}</p>
         </header>
 
         <div className="space-y-5 p-7">
           <div className="flex items-end gap-3">
             <div className="flex-1">
-              <Field label="Código actual">
+              <Field label={t("currentCode")}>
                 <Input
                   value={code}
                   onChange={(event) => setCode(event.target.value)}
@@ -107,9 +109,9 @@ export default function OnboardingSettingsPage() {
                 />
               </Field>
             </div>
-            <Button variant="secondary" onClick={handleCopy} disabled={!code} aria-label="Copiar código">
+            <Button variant="secondary" onClick={handleCopy} disabled={!code} aria-label={t("copyCode")}>
               <Copy size={14} strokeWidth={1.75} />
-              Copiar
+              {t("copy")}
             </Button>
           </div>
           <div className="flex justify-end">
@@ -118,7 +120,7 @@ export default function OnboardingSettingsPage() {
               onClick={handleSave}
               disabled={saving || !company || code === (company.code ?? "")}
             >
-              {saving ? "Guardando…" : "Guardar código"}
+              {saving ? t("saving") : t("saveCode")}
             </Button>
           </div>
         </div>
@@ -126,17 +128,15 @@ export default function OnboardingSettingsPage() {
 
       <section className="rounded-2xl border border-zinc-200/80 bg-white shadow-card">
         <header className="border-b border-zinc-100 px-7 py-5">
-          <h2 className="text-sm font-semibold text-zinc-900">Solicitudes de ingreso</h2>
+          <h2 className="text-sm font-semibold text-zinc-900">{t("admissionRequests")}</h2>
           <p className="text-xs text-zinc-400">
-            {pending.length === 0
-              ? "No hay solicitudes pendientes"
-              : `${pending.length} ${pending.length === 1 ? "persona espera" : "personas esperan"} admisión`}
+            {pending.length === 0 ? t("noPendingRequests") : t("waitingCount", { count: pending.length })}
           </p>
         </header>
 
         <div className="p-7">
           {pending.length === 0 ? (
-            <p className="py-4 text-center text-sm text-zinc-400">Todo en orden — nadie en espera</p>
+            <p className="py-4 text-center text-sm text-zinc-400">{t("noneWaiting")}</p>
           ) : (
             <ul className="divide-y divide-zinc-100">
               {pending.slice(0, 5).map((pendingUser) => (
@@ -152,7 +152,7 @@ export default function OnboardingSettingsPage() {
           )}
           <div className="mt-4 flex justify-end">
             <Link href="/members">
-              <Button variant="secondary">Gestionar en Miembros</Button>
+              <Button variant="secondary">{t("manageInMembers")}</Button>
             </Link>
           </div>
         </div>

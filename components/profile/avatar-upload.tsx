@@ -2,6 +2,7 @@
 
 import { useMutation } from "@apollo/client";
 import { Camera, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useRef } from "react";
 
 import { useSession } from "@/components/layout/session-provider";
@@ -13,6 +14,7 @@ import { UPDATE_USER_PICTURE } from "@/lib/graphql/users";
 import type { User } from "@/lib/graphql/types";
 
 export function AvatarUpload({ user }: { user: User }) {
+  const t = useTranslations("profile.avatarUpload");
   const toast = useToast();
   const { refetch } = useSession();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -28,19 +30,19 @@ export function AvatarUpload({ user }: { user: User }) {
 
     const key = await upload(file);
     if (!key) {
-      toast("No se pudo subir la imagen", "error");
+      toast(t("uploadFailed"), "error");
       return;
     }
     try {
       const { data } = await updatePicture({ variables: { picture: key, userId: user.id } });
       if (data?.updateUserPicture?.success) {
-        toast("Foto de perfil actualizada");
+        toast(t("updated"));
         refetch();
       } else {
-        toast(data?.updateUserPicture?.message ?? "No se pudo actualizar la foto", "error");
+        toast(data?.updateUserPicture?.message ?? t("updateFailed"), "error");
       }
     } catch {
-      toast("No se pudo actualizar la foto", "error");
+      toast(t("updateFailed"), "error");
     }
   };
 
@@ -50,7 +52,7 @@ export function AvatarUpload({ user }: { user: User }) {
       <button
         onClick={() => inputRef.current?.click()}
         disabled={busy}
-        aria-label="Cambiar foto de perfil"
+        aria-label={t("changePicture")}
         className="absolute inset-1 flex items-center justify-center rounded-full bg-zinc-950/50 opacity-0 transition-opacity duration-200 focus:opacity-100 disabled:opacity-100 group-hover:opacity-100"
       >
         {busy ? (

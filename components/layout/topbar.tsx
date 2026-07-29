@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { cn } from "@/lib/cn";
@@ -9,12 +10,14 @@ import { cn } from "@/lib/cn";
 import { useShell } from "./app-shell";
 import { Breadcrumbs } from "./breadcrumbs";
 import { CompanySwitcher } from "./company-switcher";
+import { LanguageToggle } from "./language-toggle";
 import { NotificationsBell } from "./notifications-bell";
 import { ProfileMenu } from "./profile-menu";
 import { ThemeToggle } from "./theme-toggle";
 
 export function Topbar() {
   const { openPalette } = useShell();
+  const t = useTranslations("topbar");
   const [scrolled, setScrolled] = useState(false);
 
   // Barra flotante tipo Material AppBar: gana profundidad extra al hacer
@@ -53,7 +56,7 @@ export function Topbar() {
             className="flex h-9 items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3 text-xs text-zinc-400 shadow-sm transition-colors hover:border-zinc-300 hover:text-zinc-600"
           >
             <Search size={13} strokeWidth={1.5} />
-            <span className="hidden md:block">Buscar…</span>
+            <span className="hidden md:block">{t("search")}</span>
             <kbd className="hidden rounded-md border border-zinc-200 bg-zinc-50 px-1.5 py-px font-sans text-[10px] text-zinc-400 md:block">
               ⌘K
             </kbd>
@@ -65,6 +68,7 @@ export function Topbar() {
 
           <div className="flex items-center gap-0.5 rounded-xl border border-zinc-200/80 bg-white/70 p-1 shadow-sm">
             <NotificationsBell />
+            <LanguageToggle />
             <ThemeToggle />
           </div>
 

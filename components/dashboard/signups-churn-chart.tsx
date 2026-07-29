@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import type { MonthCount } from "@/lib/graphql/reports";
@@ -13,6 +14,8 @@ interface SignupsChurnChartProps {
 }
 
 export function SignupsChurnChart({ newByMonth, churnedByMonth, loading }: SignupsChurnChartProps) {
+  const t = useTranslations("dashboard.signupsChurnChart");
+
   if (loading) {
     return <div className="h-48 animate-pulse rounded-lg bg-zinc-100" />;
   }
@@ -20,7 +23,7 @@ export function SignupsChurnChart({ newByMonth, churnedByMonth, loading }: Signu
   const months = Array.from(new Set([...newByMonth, ...churnedByMonth].map((item) => item.month))).sort();
 
   if (months.length === 0) {
-    return <p className="py-16 text-center text-sm text-zinc-400">Sin datos en el período</p>;
+    return <p className="py-16 text-center text-sm text-zinc-400">{t("empty")}</p>;
   }
 
   const churnedMap = new Map(churnedByMonth.map((item) => [item.month, item.count]));
@@ -45,7 +48,7 @@ export function SignupsChurnChart({ newByMonth, churnedByMonth, loading }: Signu
         <Legend wrapperStyle={{ fontSize: 11 }} />
         <Bar
           dataKey="altas"
-          name="Altas"
+          name={t("signups")}
           fill={CHART_COLORS.primary}
           radius={[6, 6, 0, 0]}
           maxBarSize={20}
@@ -54,7 +57,7 @@ export function SignupsChurnChart({ newByMonth, churnedByMonth, loading }: Signu
         />
         <Bar
           dataKey="bajas"
-          name="Bajas"
+          name={t("churn")}
           fill="rgb(var(--z-400))"
           radius={[6, 6, 0, 0]}
           maxBarSize={20}

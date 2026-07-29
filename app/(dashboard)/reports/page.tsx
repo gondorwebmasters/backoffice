@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
 
 import { PageHeader } from "@/components/ui/page-header";
@@ -10,9 +11,10 @@ const ReportsView = dynamic(() => import("@/components/reports/reports-view").th
 });
 
 export default function ReportsPage() {
+  const t = useTranslations("reports.page");
   return (
     <PageShell
-      header={<PageHeader title="Reportes" subtitle="Configura y previsualiza el PDF antes de descargarlo" />}
+      header={<PageHeader title={t("title")} subtitle={t("subtitle")} />}
     >
       <ReportsView />
     </PageShell>

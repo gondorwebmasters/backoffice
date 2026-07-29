@@ -15,6 +15,7 @@ import { cn } from "@/lib/cn";
 
 import { CommandPalette } from "./command-palette";
 import { CompanyBackdrop } from "./company-backdrop";
+import { useSession } from "./session-provider";
 import { SessionSplash } from "./session-splash";
 import { Sidebar } from "./sidebar";
 import { Topbar } from "./topbar";
@@ -43,6 +44,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const pathname = usePathname();
+  const { user } = useSession();
 
   useEffect(() => {
     try {
@@ -96,7 +98,10 @@ export function AppShell({ children }: { children: ReactNode }) {
             fixed de cada página quedan intactos.
           */}
           <motion.div
-            key={pathname}
+            // También se incluye activeCompanyId: cambiar de empresa no cambia la ruta,
+            // así que sin esto las páginas conservan filtros/selecciones (planId, búsquedas...)
+            // de la empresa anterior y las listas no se refrescan tras el resetStore().
+            key={`${pathname}-${user?.activeCompanyId ?? ""}`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}

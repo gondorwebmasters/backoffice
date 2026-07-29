@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 
 import { formatDate, fullName } from "@/lib/format";
@@ -15,6 +16,8 @@ export function AttentionList({
   pendingUsers: number;
   loading?: boolean;
 }) {
+  const t = useTranslations("dashboard.attentionList");
+
   if (loading) {
     return <div className="h-24 animate-pulse rounded-lg bg-zinc-50" />;
   }
@@ -22,7 +25,7 @@ export function AttentionList({
   const empty = overdueInvoices.length === 0 && pendingUsers === 0;
 
   if (empty) {
-    return <p className="py-8 text-center text-sm text-zinc-400">Todo en orden — nada pendiente de revisión</p>;
+    return <p className="py-8 text-center text-sm text-zinc-400">{t("empty")}</p>;
   }
 
   return (
@@ -32,7 +35,7 @@ export function AttentionList({
           <Link href="/members?state=pending" className="flex items-center gap-3 py-3 hover:bg-zinc-50">
             <AlertCircle size={15} strokeWidth={1.5} className="shrink-0 text-amber-500" />
             <span className="text-sm text-zinc-700">
-              {pendingUsers} {pendingUsers === 1 ? "solicitud de ingreso pendiente" : "solicitudes de ingreso pendientes"}
+              {t("pendingRequest", { count: pendingUsers })}
             </span>
           </Link>
         </li>
@@ -42,10 +45,10 @@ export function AttentionList({
           <Link href="/billing" className="flex items-center gap-3 py-3 hover:bg-zinc-50">
             <AlertCircle size={15} strokeWidth={1.5} className="shrink-0 text-red-500" />
             <span className="flex-1 text-sm text-zinc-700">
-              Factura {invoice.invoiceNumber ?? invoice.id.slice(0, 8)} vencida · {fullName(invoice.user)}
+              {t("invoiceOverdue", { number: invoice.invoiceNumber ?? invoice.id.slice(0, 8), name: fullName(invoice.user) })}
             </span>
             <span className="text-sm tabular-nums text-zinc-400">
-              {invoice.formattedTotal} · vencía {formatDate(invoice.dueDate)}
+              {t("invoiceDue", { total: invoice.formattedTotal, date: formatDate(invoice.dueDate) })}
             </span>
           </Link>
         </li>

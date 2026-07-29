@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation } from "@apollo/client";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { useSession } from "@/components/layout/session-provider";
@@ -29,6 +30,7 @@ function toForm(user: User): FormState {
 }
 
 export function ProfileForm({ user }: { user: User }) {
+  const t = useTranslations("profile.profileForm");
   const toast = useToast();
   const { refetch } = useSession();
   const [form, setForm] = useState<FormState>(() => toForm(user));
@@ -65,37 +67,37 @@ export function ProfileForm({ user }: { user: User }) {
         },
       });
       if (data?.updateUser?.success) {
-        toast("Perfil actualizado");
+        toast(t("updated"));
         refetch();
       } else {
-        toast(data?.updateUser?.message ?? "No se pudo actualizar el perfil", "error");
+        toast(data?.updateUser?.message ?? t("updateFailed"), "error");
       }
     } catch {
-      toast("No se pudo actualizar el perfil", "error");
+      toast(t("updateFailed"), "error");
     }
   };
 
   return (
     <section className="rounded-2xl border border-zinc-200/80 bg-white shadow-card transition-shadow hover:shadow-card-hover">
       <header className="border-b border-zinc-100 px-7 py-5">
-        <h2 className="text-sm font-semibold text-zinc-900">Datos personales</h2>
-        <p className="text-xs text-zinc-400">Tu información visible en la plataforma</p>
+        <h2 className="text-sm font-semibold text-zinc-900">{t("title")}</h2>
+        <p className="text-xs text-zinc-400">{t("subtitle")}</p>
       </header>
 
       <form onSubmit={handleSubmit} className="space-y-5 p-7">
         <div className="grid gap-5 sm:grid-cols-2">
-          <Field label="Nombre">
+          <Field label={t("name")}>
             <Input value={form.name} onChange={set("name")} autoComplete="given-name" />
           </Field>
-          <Field label="Apellidos">
+          <Field label={t("surname")}>
             <Input value={form.surname} onChange={set("surname")} autoComplete="family-name" />
           </Field>
         </div>
         <div className="grid gap-5 sm:grid-cols-2">
-          <Field label="Nickname">
+          <Field label={t("nickname")}>
             <Input value={form.nickname} onChange={set("nickname")} required autoComplete="nickname" />
           </Field>
-          <Field label="Teléfono" hint="Solo dígitos, sin espacios">
+          <Field label={t("phone")} hint={t("phoneHint")}>
             <Input
               value={form.phoneNumber}
               onChange={set("phoneNumber")}
@@ -106,13 +108,13 @@ export function ProfileForm({ user }: { user: User }) {
             />
           </Field>
         </div>
-        <Field label="Email">
+        <Field label={t("email")}>
           <Input value={form.email} onChange={set("email")} type="email" required autoComplete="email" />
         </Field>
 
         <div className="flex justify-end pt-1">
           <Button type="submit" variant="primary" disabled={!dirty || loading}>
-            {loading ? "Guardando…" : "Guardar cambios"}
+            {loading ? t("saving") : t("saveChanges")}
           </Button>
         </div>
       </form>

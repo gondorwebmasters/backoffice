@@ -2,6 +2,7 @@
 
 import { useQuery } from "@apollo/client";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { ScheduleForm } from "@/components/calendar/schedule-form";
@@ -14,7 +15,12 @@ import { addDays, startOfWeek, toISODate } from "@/lib/format";
 import { GET_SCHEDULES_RANGE } from "@/lib/graphql/schedules";
 import type { Schedule } from "@/lib/graphql/types";
 
+const INTL_LOCALE: Record<string, string> = { es: "es-ES", pt: "pt-PT" };
+
 export default function CalendarPage() {
+  const t = useTranslations("calendar");
+  const locale = useLocale();
+  const intlLocale = INTL_LOCALE[locale] ?? locale;
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()));
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
@@ -32,10 +38,10 @@ export default function CalendarPage() {
   const schedules = useMemo(() => data?.getSchedulesRange?.schedules ?? [], [data]);
   const selected = schedules.find((schedule) => schedule.id === selectedId) ?? null;
 
-  const weekLabel = `${weekStart.toLocaleDateString("es-ES", { day: "numeric", month: "short" })} – ${addDays(
+  const weekLabel = `${weekStart.toLocaleDateString(intlLocale, { day: "numeric", month: "short" })} – ${addDays(
     weekStart,
     6,
-  ).toLocaleDateString("es-ES", { day: "numeric", month: "short", year: "numeric" })}`;
+  ).toLocaleDateString(intlLocale, { day: "numeric", month: "short", year: "numeric" })}`;
 
   return (
     <>
@@ -43,12 +49,12 @@ export default function CalendarPage() {
         header={
           <>
             <PageHeader
-              title="Calendario"
-              subtitle="Clases y horarios de la semana"
+              title={t("title")}
+              subtitle={t("subtitle")}
               actions={
                 <Button variant="primary" onClick={() => setCreating(true)}>
                   <Plus size={15} strokeWidth={1.5} />
-                  Nueva clase
+                  {t("newClass")}
                 </Button>
               }
             />
@@ -62,7 +68,7 @@ export default function CalendarPage() {
                 <ChevronRight size={15} strokeWidth={1.5} />
               </Button>
               <Button size="sm" onClick={() => setWeekStart(startOfWeek(new Date()))}>
-                Hoy
+                {t("today")}
               </Button>
             </div>
           </>
