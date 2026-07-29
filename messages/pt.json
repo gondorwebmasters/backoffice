@@ -1,0 +1,957 @@
+{
+  "nav": {
+    "main": {
+      "dashboard": "Painel",
+      "members": "Membros",
+      "calendar": "Calendário",
+      "plans": "Planos",
+      "subscriptions": "Assinaturas",
+      "billing": "Faturamento",
+      "products": "Produtos",
+      "promotions": "Promoções",
+      "polls": "Enquetes",
+      "broadcast": "Notificações push",
+      "reports": "Relatórios",
+      "settings": "Configurações"
+    },
+    "system": {
+      "overview": "Visão geral",
+      "companies": "Empresas"
+    },
+    "segments": {
+      "members": "Membros",
+      "calendar": "Calendário",
+      "plans": "Planos",
+      "subscriptions": "Assinaturas",
+      "billing": "Faturamento",
+      "products": "Produtos",
+      "promotions": "Promoções",
+      "polls": "Enquetes",
+      "broadcast": "Notificações push",
+      "reports": "Relatórios",
+      "settings": "Configurações",
+      "system": "Sistema",
+      "companies": "Empresas",
+      "profile": "Meu perfil",
+      "finance": "Finanças",
+      "onboarding": "Integração",
+      "danger": "Zona de risco"
+    }
+  },
+  "languageSwitcher": {
+    "label": "Idioma",
+    "es": "Español",
+    "pt": "Português"
+  },
+  "sidebar": {
+    "adminBadge": "Admin",
+    "system": "Sistema",
+    "expand": "Expandir menu",
+    "collapse": "Recolher menu",
+    "breadcrumbs": "Trilha de navegação"
+  },
+  "commandPalette": {
+    "placeholder": "Buscar telas ou membros…",
+    "groupNavigation": "Navegação",
+    "groupMembers": "Membros",
+    "searching": "Buscando…",
+    "noResults": "Sem resultados",
+    "navigate": "navegar",
+    "open": "abrir",
+    "close": "fechar"
+  },
+  "themeToggle": {
+    "light": "Modo claro",
+    "dark": "Modo escuro",
+    "system": "Conforme o sistema"
+  },
+  "notificationsBell": {
+    "title": "Notificações",
+    "titleWithCount": "Notificações ({count})",
+    "loading": "Carregando…",
+    "empty": "Você não tem notificações",
+    "now": "agora",
+    "minutesAgo": "há {count} min",
+    "hoursAgo": "há {count} h",
+    "daysAgo": "há {count} d"
+  },
+  "profileMenu": {
+    "profile": "Meu perfil",
+    "settings": "Configurações",
+    "logout": "Sair"
+  },
+  "companySwitcher": {
+    "switching": "Alterando…",
+    "select": "Selecionar empresa",
+    "searchPlaceholder": "Buscar empresa…",
+    "loading": "Carregando…",
+    "noResults": "Sem resultados"
+  },
+  "sessionSplash": {
+    "subtitle": "Painel de administração"
+  },
+  "topbar": {
+    "search": "Buscar…"
+  },
+  "dashboard": {
+    "greeting": "Olá{name}",
+    "subtitle": "Resumo do negócio",
+    "months": {
+      "0": "Janeiro", "1": "Fevereiro", "2": "Março", "3": "Abril", "4": "Maio", "5": "Junho",
+      "6": "Julho", "7": "Agosto", "8": "Setembro", "9": "Outubro", "10": "Novembro", "11": "Dezembro"
+    },
+    "kpi": {
+      "members": "Membros",
+      "membersDetail": "{newUsers} novos · {pendingUsers} pendentes",
+      "subscriptions": "Assinaturas",
+      "subscriptionsDetail": "{plans} planos ativos",
+      "classes": "Aulas",
+      "classesDetail": "agendadas",
+      "transactions": "Transações",
+      "transactionsDetail": "registradas",
+      "occupancy": "Ocupação média",
+      "occupancyDeltaLabel": "vs mês ant.",
+      "occupancyDetail": "em {month}",
+      "totalRevenue": "Receita total",
+      "totalRevenueDetail": "acumulado",
+      "productsSold": "Produtos vendidos",
+      "promotionsApplied": "Promoções aplicadas"
+    },
+    "cards": {
+      "occupancyByTimeSlot": "Ocupação média por horário",
+      "membersByPlan": "Membros por plano",
+      "membersStatus": "Status dos membros",
+      "generalActivity": "Atividade geral",
+      "signupsChurn": "Altas e baixas por mês",
+      "ageRange": "Clientes por faixa etária",
+      "revenueTrend": "Evolução da receita",
+      "promotionsByMonth": "Promoções aplicadas por mês",
+      "needsAttention": "Requer atenção"
+    },
+    "activityChart": {
+      "classes": "Aulas",
+      "polls": "Enquetes",
+      "plans": "Planos",
+      "subscriptions": "Assinaturas",
+      "transactions": "Transações",
+      "notifications": "Notificações"
+    },
+    "ageRangeChart": {
+      "empty": "Sem dados de idade disponíveis",
+      "customers": "{value} clientes"
+    },
+    "attentionList": {
+      "empty": "Tudo em ordem — nada pendente de revisão",
+      "pendingRequest": "{count, plural, one {# solicitação de ingresso pendente} other {# solicitações de ingresso pendentes}}",
+      "invoiceOverdue": "Fatura {number} vencida · {name}",
+      "invoiceDue": "{total} · venceu {date}"
+    },
+    "occupancyHeatmap": {
+      "empty": "Sem aulas neste mês",
+      "days": { "0": "Seg", "1": "Ter", "2": "Qua", "3": "Qui", "4": "Sex", "5": "Sáb", "6": "Dom" },
+      "cellEmpty": "{day} {time} · sem aulas",
+      "cellFilled": "{day} {time} · {ratio}% de ocupação média",
+      "legendFull": "100% ocupação"
+    },
+    "planDistributionChart": {
+      "empty": "Sem assinaturas ativas",
+      "subscriptions": "{value} assinaturas"
+    },
+    "promotionsByMonthChart": {
+      "empty": "Sem promoções criadas no período",
+      "promotions": "{value} promoções"
+    },
+    "revenueTrendChart": {
+      "empty": "Sem receita registrada no período"
+    },
+    "signupsChurnChart": {
+      "empty": "Sem dados no período",
+      "signups": "Altas",
+      "churn": "Baixas"
+    },
+    "usersStatusChart": {
+      "empty": "Sem novidades em membros",
+      "new": "Novos",
+      "pending": "Pendentes",
+      "blocked": "Bloqueados",
+      "inactive": "Inativos",
+      "members": "{value} membros"
+    }
+  },
+  "members": {
+    "page": {
+      "title": "Membros",
+      "subtitle": "Gestão de usuários da empresa",
+      "newMember": "Novo membro",
+      "roleLabels": {
+        "standard": "Padrão",
+        "coach": "Coach",
+        "admin": "Admin"
+      },
+      "stateLabels": {
+        "blocked": "Bloqueado",
+        "pending": "Pendente",
+        "inactive": "Inativo",
+        "active": "Ativo"
+      },
+      "columns": {
+        "member": "Membro",
+        "role": "Função",
+        "phone": "Telefone",
+        "state": "Status"
+      },
+      "emptyTable": "Nenhum membro corresponde aos filtros",
+      "pageLabel": "Página {page}"
+    },
+    "filters": {
+      "searchPlaceholder": "Buscar por nome, email ou usuário…",
+      "allRoles": "Todas as funções",
+      "allStates": "Todos os status",
+      "roleOptions": {
+        "standard": "Padrão",
+        "coach": "Coach",
+        "admin": "Admin"
+      },
+      "stateOptions": {
+        "new": "Novos (30 dias)",
+        "pending": "Pendentes de admissão",
+        "inactive": "Inativos",
+        "blocked": "Bloqueados",
+        "notVerified": "Não verificados"
+      }
+    },
+    "bulkActions": {
+      "clearSelection": "Limpar seleção",
+      "selected": "{count, plural, one {# membro selecionado} other {# membros selecionados}}",
+      "unblock": "Desbloquear",
+      "block": "Bloquear",
+      "delete": "Excluir",
+      "updatedSuccess": "{count, plural, one {# membro atualizado} other {# membros atualizados}}",
+      "updatedPartial": "{updated} de {count} membros atualizados ({failed} com erro)",
+      "deletedSuccess": "{count, plural, one {# membro excluído} other {# membros excluídos}}",
+      "deletedPartial": "{updated} de {count} membros excluídos ({failed} com erro)",
+      "deleteConfirmTitle": "{count, plural, one {Excluir # membro} other {Excluir # membros}}",
+      "deleteConfirmDescription": "Esta ação não pode ser desfeita. As contas selecionadas e seu acesso à empresa serão excluídos."
+    },
+    "createForm": {
+      "title": "Novo membro",
+      "subtitle": "Será criado com acesso à empresa ativa",
+      "cancel": "Cancelar",
+      "creating": "Criando…",
+      "submit": "Criar membro",
+      "created": "Membro criado",
+      "createFailed": "Não foi possível criar o membro",
+      "email": "Email",
+      "username": "Usuário",
+      "password": "Senha",
+      "passwordHint": "O membro poderá alterá-la pelo app",
+      "role": "Função",
+      "activateDirectly": "Ativar membro diretamente"
+    },
+    "panel": {
+      "tabs": {
+        "profile": "Perfil",
+        "subscription": "Assinatura",
+        "payments": "Pagamentos",
+        "schedules": "Aulas"
+      }
+    },
+    "profileTab": {
+      "showPassword": "Mostrar senha",
+      "hidePassword": "Ocultar senha",
+      "pendingAdmission": "Solicitação de ingresso pendente",
+      "admit": "Admitir",
+      "name": "Nome",
+      "surname": "Sobrenome",
+      "email": "Email",
+      "username": "Usuário",
+      "phone": "Telefone",
+      "role": "Função",
+      "activeMember": "Membro ativo",
+      "blockAccess": "Bloquear acesso ao app",
+      "deleteMember": "Excluir membro",
+      "saving": "Salvando…",
+      "saveChanges": "Salvar alterações",
+      "profileUpdated": "Perfil atualizado",
+      "saveFailed": "Não foi possível salvar",
+      "admittedSuccess": "Membro admitido na empresa",
+      "admitFailed": "Não foi possível admitir",
+      "passwordSectionTitle": "Senha do membro",
+      "passwordSectionHint": "Como super admin você pode definir uma nova senha",
+      "newPassword": "Nova senha",
+      "newPasswordHint": "Mínimo de 6 caracteres",
+      "confirmPassword": "Confirmar senha",
+      "passwordMismatch": "As senhas não coincidem",
+      "updatingPassword": "Atualizando…",
+      "changePassword": "Alterar senha",
+      "passwordUpdated": "Senha atualizada",
+      "passwordUpdateFailed": "Não foi possível alterar a senha",
+      "deleteConfirmTitle": "Excluir membro",
+      "deleteConfirmDescription": "{name} e todos os seus dados serão excluídos definitivamente. Esta ação não pode ser desfeita.",
+      "memberDeleted": "Membro excluído",
+      "deleteFailed": "Não foi possível excluir"
+    },
+    "paymentsTab": {
+      "invoices": "Faturas",
+      "overdue": " · vencida",
+      "void": "Anular",
+      "noInvoices": "Sem faturas",
+      "transactions": "Transações",
+      "refund": "Reembolsar",
+      "retry": "Tentar novamente",
+      "noTransactions": "Sem transações",
+      "refunded": "Reembolso emitido",
+      "refundFailed": "Não foi possível reembolsar"
+    },
+    "schedulesTab": {
+      "upcoming": "Próximas",
+      "past": "Passadas",
+      "empty": "Sem aulas",
+      "cancelled": "Cancelada",
+      "available": "Disponível"
+    },
+    "subscriptionTab": {
+      "statusLabels": {
+        "active": "Ativa",
+        "trialing": "Em teste",
+        "past_due": "Pagamento vencido",
+        "paused": "Pausada",
+        "canceled": "Cancelada",
+        "unpaid": "Não paga",
+        "incomplete": "Incompleta",
+        "incomplete_expired": "Expirada"
+      },
+      "periodEnd": "Fim do período",
+      "nextBilling": "Próxima cobrança",
+      "failedAttempts": "Tentativas de cobrança com falha",
+      "willCancelAtPeriodEnd": "Será cancelada ao final do período",
+      "resume": "Retomar",
+      "pause": "Pausar",
+      "renewNow": "Renovar agora",
+      "extend": "Estender",
+      "cancel": "Cancelar",
+      "days": "Dias",
+      "reason": "Motivo",
+      "reasonHint": "Fica registrado no audit log",
+      "confirmExtend": "Confirmar extensão",
+      "periodExtended": "Período estendido em {days} dias",
+      "extendFailed": "Não foi possível estender",
+      "noSubscriptions": "Sem assinaturas",
+      "assignPlan": "Atribuir plano",
+      "selectPlan": "Selecione um plano…",
+      "subscribe": "Assinar",
+      "subscriptionCreated": "Assinatura criada",
+      "subscriptionCreateFailed": "Não foi possível criar a assinatura"
+    }
+  },
+  "settings": {
+    "layout": {
+      "title": "Configurações",
+      "subtitle": "Configuração e administração da empresa",
+      "tabsAriaLabel": "Seções de configurações",
+      "tabs": {
+        "general": "Geral",
+        "finance": "Financeiro",
+        "onboarding": "Onboarding",
+        "danger": "Zona de risco"
+      }
+    },
+    "page": {
+      "configLabels": {
+        "pollsEnabled": "Enquetes",
+        "productsEnabled": "Loja de produtos",
+        "chatEnabled": "Chat",
+        "trainingEnabled": "Treinamento"
+      },
+      "optionFields": {
+        "maxActiveReservations": "Reservas ativas máximas",
+        "maxAdvanceBookingDays": "Dias máximos de antecedência",
+        "fullOpenHours": "Horas de abertura completa",
+        "bookingCutoffMinutes": "Minutos de fechamento de reserva",
+        "minBookingsRequired": "Reservas mínimas por aula"
+      },
+      "companyData": "Dados da empresa",
+      "name": "Nome",
+      "email": "Email",
+      "phone": "Telefone",
+      "address": "Endereço",
+      "activeModules": "Módulos ativos no app",
+      "bookingRules": "Regras de reservas",
+      "sameDayBooking": "Permitir reserva no mesmo dia",
+      "saving": "Salvando…",
+      "saveChanges": "Salvar alterações",
+      "saved": "Configurações salvas",
+      "saveFailed": "Não foi possível salvar as configurações"
+    },
+    "finance": {
+      "title": "Gateway de pagamento",
+      "subtitle": "Conta conectada para cobrar assinaturas e produtos",
+      "accountConnected": "Conta conectada",
+      "account": "Conta",
+      "capabilities": "Capacidades",
+      "chargesActive": "Cobranças ativas",
+      "chargesPending": "Cobranças pendentes",
+      "payoutsActive": "Transferências ativas",
+      "payoutsPending": "Transferências pendentes",
+      "missingRequirements": "Faltam requisitos a completar:",
+      "redirecting": "Redirecionando…",
+      "completeSetup": "Concluir configuração",
+      "disconnect": "Desconectar",
+      "connectDescription": "Conecte uma conta de pagamentos para poder cobrar assinaturas, faturas e produtos dos seus membros. Você será redirecionado ao processo seguro de cadastro do gateway.",
+      "connect": "Conectar gateway de pagamento",
+      "disconnectTitle": "Desconectar gateway de pagamento",
+      "disconnectDescription": "Você deixará de poder cobrar assinaturas e produtos até reconectar uma conta. As cobranças já processadas não são afetadas.",
+      "connectFailed": "Não foi possível iniciar a conexão",
+      "disconnected": "Gateway de pagamento desconectado",
+      "disconnectFailed": "Não foi possível desconectar"
+    },
+    "onboarding": {
+      "accessCode": "Código de acesso",
+      "accessCodeSubtitle": "Os membros o usam no app para solicitar admissão",
+      "currentCode": "Código atual",
+      "copyCode": "Copiar código",
+      "copy": "Copiar",
+      "saving": "Salvando…",
+      "saveCode": "Salvar código",
+      "admissionRequests": "Solicitações de admissão",
+      "noPendingRequests": "Não há solicitações pendentes",
+      "waitingCount": "{count, plural, one {# pessoa aguarda admissão} other {# pessoas aguardam admissão}}",
+      "noneWaiting": "Tudo em ordem — ninguém aguardando",
+      "manageInMembers": "Gerenciar em Membros",
+      "codeCopied": "Código copiado para a área de transferência",
+      "codeUpdated": "Código de acesso atualizado",
+      "codeUpdateFailed": "Não foi possível atualizar o código"
+    },
+    "danger": {
+      "title": "Excluir minha conta",
+      "subtitle": "Ação permanente e irreversível",
+      "description": "Sua conta de administrador e todos os seus dados pessoais serão excluídos permanentemente. Você perderá o acesso a este painel. Esta ação não pode ser desfeita.",
+      "deleteAccount": "Excluir conta",
+      "confirmTitle": "Excluir sua conta definitivamente?",
+      "confirmDescription": "A conta de {name} e todos os seus dados serão excluídos. Você não poderá voltar a acessar o painel. Esta ação não pode ser desfeita.",
+      "confirmDelete": "Excluir definitivamente",
+      "deleteFailed": "Não foi possível excluir a conta"
+    },
+    "companyLogoUpload": {
+      "uploading": "Enviando…",
+      "changeLogo": "Alterar logo",
+      "hint": "JPG ou PNG quadrado, exibido no app",
+      "uploadFailed": "Não foi possível enviar a imagem",
+      "updated": "Logo atualizado",
+      "updateFailed": "Não foi possível atualizar o logo"
+    }
+  },
+  "login": {
+    "subtitle": "Painel de administração",
+    "emailOrUsername": "Email ou usuário",
+    "password": "Senha",
+    "loggingIn": "Entrando…",
+    "login": "Entrar",
+    "authError": "Erro de autenticação",
+    "connectionError": "Não foi possível conectar ao servidor"
+  },
+  "broadcast": {
+    "title": "Notificações push",
+    "subtitle": "Envie notificações push para uma seleção de membros",
+    "composeMessage": "Compor mensagem",
+    "titleField": "Título",
+    "titlePlaceholder": "Ex. Fechamento por férias",
+    "messageField": "Mensagem",
+    "messagePlaceholder": "Escreva o conteúdo da notificação…",
+    "typeField": "Tipo",
+    "categoryField": "Categoria interativa (opcional)",
+    "categoryHint": "Adiciona botões de ação na notificação. Se não selecionar nenhuma, será enviada como hoje.",
+    "categoryPlaceholder": "Sem categoria — notificação simples",
+    "selectedRecipients": "Destinatários selecionados",
+    "clearSelection": "Limpar seleção",
+    "selectHint": "Selecione membros na tabela à direita",
+    "send": "Enviar notificação",
+    "types": {
+      "info": "Informação",
+      "message": "Mensagem",
+      "warning": "Aviso",
+      "error": "Urgente"
+    },
+    "categories": {
+      "NUEVA_RUTINA": "Nova rotina (Ver / Ignorar)",
+      "RECORDATORIO_AGUA": "Lembrete de água (Registrar 250ml / Mais tarde)"
+    },
+    "stateLabels": { "blocked": "Bloqueado", "pending": "Pendente", "inactive": "Inativo", "active": "Ativo" },
+    "columns": { "member": "Membro", "state": "Estado" },
+    "emptyTable": "Não há membros que correspondam aos filtros",
+    "pageLabel": "Página {page}",
+    "previous": "Anterior",
+    "next": "Próxima",
+    "sentToast": "{count, plural, one {Notificação enviada a # membro} other {Notificação enviada a # membros}}",
+    "sendFailed": "Não foi possível enviar a notificação",
+    "confirmTitle": "Enviar notificação push",
+    "confirmDescription": "Será enviada \"{title}\" a {count, plural, one {# membro} other {# membros}} selecionados: {names}{more}. Esta ação não pode ser desfeita.",
+    "confirmMore": ", +{count} mais",
+    "sending": "Enviando…",
+    "confirmSend": "Enviar"
+  },
+  "products": {
+    "title": "Produtos",
+    "subtitle": "Loja da empresa",
+    "newProduct": "Novo produto",
+    "columns": { "product": "Produto", "price": "Preço" },
+    "deleteProduct": "Excluir produto",
+    "emptyTable": "Ainda não há produtos na loja",
+    "totalLabel": "{count} produtos",
+    "createSubtitle": "A imagem pode ser adicionada depois pelo app",
+    "cancel": "Cancelar",
+    "creating": "Criando…",
+    "createProduct": "Criar produto",
+    "name": "Nome",
+    "description": "Descrição",
+    "price": "Preço (€)",
+    "deleteConfirmDescription": "\"{name}\" será excluído da loja.",
+    "delete": "Excluir",
+    "created": "Produto criado",
+    "createFailed": "Não foi possível criar",
+    "removed": "Produto excluído",
+    "removeFailed": "Não foi possível excluir"
+  },
+  "calendar": {
+    "title": "Calendário",
+    "subtitle": "Aulas e horários da semana",
+    "newClass": "Nova aula",
+    "today": "Hoje",
+    "days": { "0": "Seg", "1": "Ter", "2": "Qua", "3": "Qui", "4": "Sex", "5": "Sáb", "6": "Dom" },
+    "scheduleBlock": {
+      "morningShift": "Turno da manhã",
+      "afternoonShift": "Turno da tarde",
+      "cancelled": "Cancelada"
+    },
+    "schedulePanel": {
+      "delete": "Excluir",
+      "reactivate": "Reativar aula",
+      "cancelClass": "Cancelar aula",
+      "cancelled": "Cancelada",
+      "available": "Disponível",
+      "spots": "vagas",
+      "type": "Tipo",
+      "trainer": "Treinador",
+      "attendees": "Participantes ({count})",
+      "noAttendees": "Ninguém inscrito ainda",
+      "removeFromClass": "Remover da aula",
+      "waitList": "Lista de espera",
+      "deleteClass": "Excluir aula",
+      "deleteClassDescription": "A aula e as reservas associadas serão excluídas. Esta ação não pode ser desfeita.",
+      "deleted": "Aula excluída",
+      "deleteFailed": "Não foi possível excluir"
+    },
+    "scheduleForm": {
+      "dayInitials": { "0": "D", "1": "S", "2": "T", "3": "Q", "4": "Q", "5": "S", "6": "S" },
+      "types": {
+        "standard": "Padrão",
+        "sparring": "Sparring",
+        "free": "Livre",
+        "conditioning": "Condicionamento",
+        "competition": "Competição"
+      },
+      "newClass": "Nova aula",
+      "weeklySeries": "Série recorrente semanal",
+      "oneTimeClass": "Aula pontual",
+      "cancel": "Cancelar",
+      "creating": "Criando…",
+      "createClass": "Criar aula",
+      "title": "Título",
+      "description": "Descrição",
+      "type": "Tipo",
+      "spots": "Vagas",
+      "startTime": "Hora de início",
+      "endTime": "Hora de término",
+      "trainer": "Treinador",
+      "select": "Selecione…",
+      "repeatWeekly": "Repetir semanalmente",
+      "daysOfWeek": "Dias da semana",
+      "date": "Data",
+      "created": "Aula criada",
+      "createFailed": "Não foi possível criar a aula"
+    }
+  },
+  "polls": {
+    "title": "Enquetes",
+    "subtitle": "Consultas aos membros e resultados",
+    "newPoll": "Nova enquete",
+    "ended": "Encerrada",
+    "open": "Aberta",
+    "until": "até {date}",
+    "voteCount": "{count, plural, one {# voto} other {# votos}}",
+    "deletePoll": "Excluir enquete",
+    "optionTitle": "{option}: {count} votos ({percentage}%)",
+    "emptyState": "Ainda não há enquetes",
+    "cancel": "Cancelar",
+    "creating": "Criando…",
+    "publish": "Publicar enquete",
+    "question": "Pergunta",
+    "options": "Opções",
+    "optionsHint": "Uma por linha, mínimo duas",
+    "closingDate": "Data de encerramento",
+    "delete": "Excluir",
+    "deleteConfirmDescription": "\"{title}\" e todos os seus votos serão excluídos.",
+    "created": "Enquete criada",
+    "createFailed": "Não foi possível criar",
+    "removed": "Enquete excluída",
+    "removeFailed": "Não foi possível excluir"
+  },
+  "profile": {
+    "page": {
+      "roleLabels": { "admin": "Administrador", "coach": "Treinador", "standard": "Padrão" },
+      "superadmin": "Superadmin"
+    },
+    "profileForm": {
+      "title": "Dados pessoais",
+      "subtitle": "Sua informação visível na plataforma",
+      "name": "Nome",
+      "surname": "Sobrenome",
+      "nickname": "Apelido",
+      "phone": "Telefone",
+      "phoneHint": "Somente dígitos, sem espaços",
+      "email": "Email",
+      "saving": "Salvando…",
+      "saveChanges": "Salvar alterações",
+      "updated": "Perfil atualizado",
+      "updateFailed": "Não foi possível atualizar o perfil"
+    },
+    "passwordForm": {
+      "showPassword": "Mostrar senha",
+      "hidePassword": "Ocultar senha",
+      "title": "Segurança",
+      "subtitle": "Altere sua senha de acesso",
+      "currentPassword": "Senha atual",
+      "newPassword": "Nova senha",
+      "newPasswordHint": "Mínimo 6 caracteres",
+      "confirmPassword": "Confirmar senha",
+      "mismatch": "As senhas não coincidem",
+      "updating": "Atualizando…",
+      "changePassword": "Alterar senha",
+      "updated": "Senha atualizada",
+      "updateFailed": "Não foi possível alterar a senha"
+    },
+    "appearanceCard": {
+      "title": "Aparência",
+      "subtitle": "Tema e cor de destaque — salvo neste dispositivo",
+      "mode": "Modo",
+      "modeAriaLabel": "Modo do tema",
+      "modes": { "light": "Claro", "dark": "Escuro", "system": "Sistema" },
+      "accentColor": "Cor de destaque",
+      "accentNames": {
+        "indigo": "Índigo",
+        "purple": "Roxo",
+        "pink": "Rosa",
+        "red": "Vermelho",
+        "orange": "Laranja",
+        "amber": "Âmbar",
+        "green": "Verde",
+        "emerald": "Esmeralda",
+        "cyan": "Ciano",
+        "blue": "Azul",
+        "navy": "Azul Marinho",
+        "gray": "Cinza"
+      }
+    },
+    "avatarUpload": {
+      "changePicture": "Alterar foto de perfil",
+      "uploadFailed": "Não foi possível enviar a imagem",
+      "updated": "Foto de perfil atualizada",
+      "updateFailed": "Não foi possível atualizar a foto"
+    }
+  },
+  "subscriptions": {
+    "title": "Assinaturas",
+    "subtitle": "Status das assinaturas por plano",
+    "activeSubscriptions": "assinaturas ativas",
+    "selectPlanPlaceholder": "Selecione um plano para ver suas assinaturas…",
+    "statusFilters": {
+      "active": "Ativas",
+      "all": "Todos os status",
+      "trialing": "Em teste",
+      "past_due": "Pagamento vencido",
+      "unpaid": "Não pagas",
+      "paused": "Pausadas",
+      "canceled": "Canceladas"
+    },
+    "statusLabels": {
+      "active": "Ativa",
+      "trialing": "Em teste",
+      "past_due": "Pagamento vencido",
+      "paused": "Pausada",
+      "canceled": "Cancelada",
+      "unpaid": "Não paga",
+      "incomplete": "Incompleta",
+      "incomplete_expired": "Expirada"
+    },
+    "columns": {
+      "member": "Membro",
+      "since": "Início",
+      "periodEnd": "Fim do período",
+      "nextBilling": "Próxima cobrança",
+      "failedPayments": "Falhas de cobrança",
+      "status": "Status"
+    },
+    "emptyTable": "Não há assinaturas que correspondam ao filtro",
+    "totalLabel": "{count} assinaturas",
+    "selectPlanHint": "Escolha um plano para ver o detalhe de suas assinaturas"
+  },
+  "plans": {
+    "title": "Planos",
+    "subtitle": "Planos de assinatura da empresa",
+    "newPlan": "Novo plano",
+    "intervals": { "day": "diário", "week": "semanal", "month": "mensal", "year": "anual" },
+    "columns": { "plan": "Plano", "price": "Preço", "trial": "Teste", "status": "Status" },
+    "trialDays": "{count} dias",
+    "statusLabels": { "active": "Ativo", "archived": "Arquivado", "inactive": "Inativo" },
+    "archivePlan": "Arquivar plano",
+    "emptyTable": "Ainda não há planos criados",
+    "totalLabel": "{count} planos",
+    "archiveConfirmDescription": "O plano \"{name}\" deixará de estar disponível para novas assinaturas. As existentes não são afetadas.",
+    "archive": "Arquivar",
+    "archived": "Plano arquivado",
+    "archiveFailed": "Não foi possível arquivar",
+    "form": {
+      "intervals": { "day": "Diário", "week": "Semanal", "month": "Mensal", "year": "Anual" },
+      "editTitle": "Editar {name}",
+      "newPlan": "Novo plano",
+      "editSubtitle": "O intervalo de cobrança não pode ser alterado",
+      "createSubtitle": "Plano de assinatura para os membros",
+      "cancel": "Cancelar",
+      "saving": "Salvando…",
+      "saveChanges": "Salvar alterações",
+      "createPlan": "Criar plano",
+      "name": "Nome",
+      "description": "Descrição",
+      "price": "Preço (€)",
+      "interval": "Intervalo",
+      "trialDays": "Dias de teste",
+      "optional": "Opcional",
+      "features": "Características",
+      "addFeature": "Adicionar característica",
+      "maxUsers": "Máximo de usuários",
+      "maxUsersHint": "Limite de membros da empresa neste plano",
+      "supportLevel": "Nível de suporte",
+      "supportLevels": { "email": "Email", "chat": "Chat", "phone": "Telefone" },
+      "accessLevel": "Nível de acesso",
+      "standardPreset": "Padrão",
+      "premiumPreset": "Premium",
+      "permissions": "Permissões do plano",
+      "permissionsHint": "Módulos e ações que este plano habilita para a empresa",
+      "permissionModules": {
+        "users": "Usuários",
+        "schedules": "Horários",
+        "payments": "Pagamentos",
+        "settings": "Configurações",
+        "promotions": "Promoções",
+        "chats": "Chats",
+        "polls": "Enquetes",
+        "workouts": "Treinos",
+        "plans": "Planos",
+        "products": "Produtos",
+        "user_weights": "Pesos do usuário",
+        "stats": "Estatísticas",
+        "companies": "Empresas",
+        "subscriptions": "Assinaturas",
+        "transactions": "Transações",
+        "invoices": "Faturas"
+      },
+      "permissionActions": {
+        "create": "Criar",
+        "read": "Ver",
+        "update": "Editar",
+        "delete": "Excluir",
+        "manage": "Gerenciar"
+      },
+      "updated": "Plano atualizado",
+      "updateFailed": "Não foi possível atualizar",
+      "created": "Plano criado",
+      "createFailed": "Não foi possível criar"
+    }
+  },
+  "promotions": {
+    "title": "Promoções",
+    "subtitle": "Ofertas e descontos exclusivos exibidos no app",
+    "newPromotion": "Nova promoção",
+    "columns": {
+      "promotion": "Promoção",
+      "discount": "Desconto",
+      "price": "Preço",
+      "expires": "Expira",
+      "status": "Status"
+    },
+    "statusLabels": { "inactive": "Inativa", "expired": "Expirada", "active": "Ativa" },
+    "deletePromotion": "Excluir promoção",
+    "emptyTable": "Ainda não há promoções criadas",
+    "totalLabel": "{count} promoções",
+    "deleteConfirmDescription": "A promoção \"{title}\" será excluída permanentemente e deixará de aparecer no app.",
+    "delete": "Excluir",
+    "deleted": "Promoção excluída",
+    "deleteFailed": "Não foi possível excluir",
+    "form": {
+      "editTitle": "Editar {title}",
+      "newPromotion": "Nova promoção",
+      "editSubtitle": "Oferta visível no app para os membros",
+      "createSubtitle": "Crie uma oferta em destaque para os membros",
+      "cancel": "Cancelar",
+      "saving": "Salvando…",
+      "saveChanges": "Salvar alterações",
+      "createPromotion": "Criar promoção",
+      "titleField": "Título",
+      "description": "Descrição",
+      "discountTag": "Etiqueta de desconto",
+      "discountTagHint": "Ex. -40% OFF, 3x2",
+      "accentColor": "Cor de destaque",
+      "originalPrice": "Preço original (€)",
+      "discountedPrice": "Preço com desconto (€)",
+      "expires": "Expira",
+      "active": "Ativa",
+      "featured": "Destaque (VIP)",
+      "updated": "Promoção atualizada",
+      "updateFailed": "Não foi possível atualizar",
+      "created": "Promoção criada",
+      "createFailed": "Não foi possível criar"
+    }
+  },
+  "billing": {
+    "title": "Faturamento",
+    "subtitle": "Faturas vencidas e transações",
+    "overdueInvoicesTab": "Faturas vencidas",
+    "transactionsTab": "Transações",
+    "columns": {
+      "invoice": "Fatura",
+      "member": "Membro",
+      "dueDate": "Vencimento",
+      "amount": "Valor",
+      "remaining": "Pendente",
+      "date": "Data",
+      "concept": "Conceito",
+      "status": "Status"
+    },
+    "void": "Anular",
+    "uncollectible": "Incobrável",
+    "noOverdueInvoices": "Não há faturas vencidas 🎉",
+    "invoiceTotalLabel": "{count} faturas",
+    "invoiceVoided": "Fatura anulada",
+    "markedUncollectible": "Marcada como incobrável",
+    "refund": "Reembolsar",
+    "retry": "Repetir",
+    "searchMemberPlaceholder": "Buscar membro para ver suas transações…",
+    "transactionsOf": "Transações de",
+    "noTransactions": "Sem transações",
+    "transactionTotalLabel": "{count} transações",
+    "searchMemberHint": "Busque um membro para consultar seu histórico de pagamentos",
+    "refundIssued": "Reembolso emitido",
+    "refundFailed": "Não foi possível reembolsar"
+  },
+  "system": {
+    "page": {
+      "title": "Visão global",
+      "subtitle": "Métricas de toda a plataforma · somente superadmin",
+      "totalUsers": "Usuários totais",
+      "totalUsersDetail": "em toda a plataforma",
+      "companies": "Empresas",
+      "companiesDetail": "registradas"
+    },
+    "companies": {
+      "columns": { "company": "Empresa", "phone": "Telefone", "address": "Endereço", "code": "Código" },
+      "title": "Empresas",
+      "subtitle": "Todas as empresas da plataforma · somente superadmin",
+      "newCompany": "Nova empresa",
+      "searchPlaceholder": "Buscar empresa…",
+      "emptyTable": "Sem empresas",
+      "pageLabel": "Página {page}",
+      "newCompanySubtitle": "Cadastro de empresa na plataforma"
+    },
+    "companyForm": {
+      "configLabels": {
+        "pollsEnabled": "Enquetes",
+        "productsEnabled": "Loja de produtos",
+        "chatEnabled": "Chat",
+        "trainingEnabled": "Treinamento"
+      },
+      "name": "Nome",
+      "email": "Email",
+      "phone": "Telefone",
+      "address": "Endereço",
+      "creating": "Criando…",
+      "createCompany": "Criar empresa",
+      "accessCode": "Código de acesso",
+      "accessCodeHint": "Os membros o usam para solicitar admissão",
+      "activeModules": "Módulos ativos",
+      "saving": "Salvando…",
+      "saveChanges": "Salvar alterações",
+      "created": "Empresa criada",
+      "createFailed": "Não foi possível criar a empresa",
+      "updated": "Empresa atualizada",
+      "updateFailed": "Não foi possível atualizar a empresa"
+    }
+  },
+  "reports": {
+    "page": {
+      "title": "Relatórios",
+      "subtitle": "Configure e pré-visualize o PDF antes de baixá-lo"
+    },
+    "view": {
+      "reportMetrics": "Métricas do relatório",
+      "preparing": "Preparando…",
+      "confirmAndDownload": "Confirmar e Baixar",
+      "preview": "Pré-visualização",
+      "viewFull": "Ver completo"
+    },
+    "metrics": {
+      "selectAll": "Selecionar tudo",
+      "clearSelection": "Limpar seleção",
+      "onlyRevenue": "Somente receita",
+      "onlyUsers": "Somente usuários",
+      "groups": {
+        "users": "Usuários & Assinaturas",
+        "financial": "Financeiro & Vendas",
+        "promotions": "Promoções & Campanhas"
+      },
+      "ids": {
+        "totalUsers": "Quantidade de usuários cadastrados",
+        "churnedUsers": "Usuários cancelados",
+        "newUsersByMonth": "Novos cadastros por mês",
+        "churnedUsersByMonth": "Cancelamentos por mês",
+        "usersByAgeRange": "Quantidade de clientes por faixa etária",
+        "totalRevenue": "Receita total",
+        "revenueByMonth": "Receita por mês",
+        "productsSold": "Quantidade de produtos vendidos",
+        "promotionsApplied": "Quantidade de promoções aplicadas",
+        "promotionsAppliedByMonth": "Quantidade de promoções por mês"
+      }
+    },
+    "document": {
+      "kpis": {
+        "totalUsers": "Usuários cadastrados",
+        "churnedUsers": "Usuários cancelados",
+        "totalRevenue": "Receita total",
+        "productsSold": "Produtos vendidos",
+        "promotionsApplied": "Promoções aplicadas"
+      },
+      "sections": {
+        "newUsersByMonth": "Novos cadastros por mês",
+        "churnedUsersByMonth": "Cancelamentos por mês",
+        "usersByAgeRange": "Clientes por faixa etária",
+        "revenueByMonth": "Receita por mês",
+        "promotionsAppliedByMonth": "Promoções aplicadas por mês"
+      },
+      "noDataPeriod": "Sem dados no período.",
+      "noDataAvailable": "Sem dados disponíveis.",
+      "noMetricsSelected": "Nenhuma métrica selecionada. Marque ao menos uma no painel esquerdo.",
+      "summary": "Resumo",
+      "subtitle": "Proprietário: {owner} · Gerado em {date}",
+      "footer": "FitConnect 2026 - Todos os direitos reservados"
+    },
+    "lightbox": {
+      "fullPreview": "Pré-visualização completa",
+      "closePreview": "Fechar pré-visualização"
+    }
+  },
+  "ui": {
+    "datePicker": {
+      "selectDate": "Selecione uma data",
+      "time": "Hora"
+    }
+  }
+}
