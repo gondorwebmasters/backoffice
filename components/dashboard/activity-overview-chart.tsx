@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import type { AdminStats } from "@/lib/graphql/types";
@@ -7,17 +8,19 @@ import type { AdminStats } from "@/lib/graphql/types";
 import { CHART_COLORS, CHART_TOOLTIP_STYLE } from "./chart-theme";
 
 export function ActivityOverviewChart({ stats, loading }: { stats?: AdminStats | null; loading?: boolean }) {
+  const t = useTranslations("dashboard.activityChart");
+
   if (loading || !stats) {
     return <div className="h-48 animate-pulse rounded-lg bg-zinc-100" />;
   }
 
   const data = [
-    { key: "Clases", value: stats.schedules },
-    { key: "Encuestas", value: stats.polls },
-    { key: "Planes", value: stats.plans },
-    { key: "Suscripciones", value: stats.subscriptions },
-    { key: "Transacciones", value: stats.transactions },
-    { key: "Notificaciones", value: stats.notifications },
+    { key: t("classes"), value: stats.schedules },
+    { key: t("polls"), value: stats.polls },
+    { key: t("plans"), value: stats.plans },
+    { key: t("subscriptions"), value: stats.subscriptions },
+    { key: t("transactions"), value: stats.transactions },
+    { key: t("notifications"), value: stats.notifications },
   ];
 
   return (

@@ -3,6 +3,7 @@
 import { PDFViewer, type DocumentProps } from "@react-pdf/renderer";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, type ReactElement } from "react";
 
 interface ReportLightboxProps {
@@ -12,6 +13,7 @@ interface ReportLightboxProps {
 }
 
 export function ReportLightbox({ open, onClose, document }: ReportLightboxProps) {
+  const t = useTranslations("reports.lightbox");
   useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => {
@@ -41,11 +43,11 @@ export function ReportLightbox({ open, onClose, document }: ReportLightboxProps)
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
           >
             <div className="flex items-center justify-between border-b border-zinc-100 px-5 py-3">
-              <h2 className="text-sm font-medium text-zinc-900">Vista previa completa</h2>
+              <h2 className="text-sm font-medium text-zinc-900">{t("fullPreview")}</h2>
               <button
                 onClick={onClose}
                 className="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-900"
-                aria-label="Cerrar vista previa"
+                aria-label={t("closePreview")}
               >
                 <X size={18} strokeWidth={1.5} />
               </button>

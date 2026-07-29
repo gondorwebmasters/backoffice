@@ -1,23 +1,30 @@
 "use client";
 
 import { Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Dropdown } from "@/components/ui/dropdown";
 import { Input } from "@/components/ui/input";
 
-export const ROLE_OPTIONS = [
-  { value: "standard", label: "Estándar" },
-  { value: "coach", label: "Coach" },
-  { value: "admin", label: "Admin" },
-];
+export function useRoleOptions() {
+  const t = useTranslations("members.filters.roleOptions");
+  return [
+    { value: "standard", label: t("standard") },
+    { value: "coach", label: t("coach") },
+    { value: "admin", label: t("admin") },
+  ];
+}
 
-export const STATE_OPTIONS = [
-  { value: "new", label: "Nuevos (30 días)" },
-  { value: "pending", label: "Pendientes de admisión" },
-  { value: "inactive", label: "Inactivos" },
-  { value: "blocked", label: "Bloqueados" },
-  { value: "notVerified", label: "Sin verificar" },
-];
+export function useStateOptions() {
+  const t = useTranslations("members.filters.stateOptions");
+  return [
+    { value: "new", label: t("new") },
+    { value: "pending", label: t("pending") },
+    { value: "inactive", label: t("inactive") },
+    { value: "blocked", label: t("blocked") },
+    { value: "notVerified", label: t("notVerified") },
+  ];
+}
 
 interface MemberFiltersProps {
   search: string;
@@ -29,28 +36,32 @@ interface MemberFiltersProps {
 }
 
 export function MemberFilters({ search, onSearch, role, onRole, state, onState }: MemberFiltersProps) {
+  const t = useTranslations("members.filters");
+  const roleOptions = useRoleOptions();
+  const stateOptions = useStateOptions();
+
   return (
     <div className="mb-6 flex flex-wrap items-center gap-3">
       <div className="relative w-72">
         <Search size={15} strokeWidth={1.5} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
         <Input
-          placeholder="Buscar por nombre, email o usuario…"
+          placeholder={t("searchPlaceholder")}
           value={search}
           onChange={(event) => onSearch(event.target.value)}
           className="pl-9"
         />
       </div>
       <Dropdown
-        options={ROLE_OPTIONS}
-        placeholder="Todos los roles"
+        options={roleOptions}
+        placeholder={t("allRoles")}
         value={role}
         onChange={onRole}
         clearable
         className="w-44"
       />
       <Dropdown
-        options={STATE_OPTIONS}
-        placeholder="Todos los estados"
+        options={stateOptions}
+        placeholder={t("allStates")}
         value={state}
         onChange={onState}
         clearable

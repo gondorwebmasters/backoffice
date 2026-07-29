@@ -13,6 +13,7 @@ export const PLAN_FIELDS = gql`
     status
     isActive
     features
+    metadata
   }
 `;
 

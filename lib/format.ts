@@ -1,5 +1,15 @@
 const CURRENCY_SYMBOLS: Record<string, string> = { eur: "€", usd: "$", gbp: "£" };
 
+/** El precio real de un plan viene de metadata.price (en céntimos); amount puede estar desactualizado. */
+export function planPriceCents(plan: { amount: number; metadata?: { price?: number | string | null } | null }): number {
+  const metadataPrice = plan.metadata?.price;
+  if (metadataPrice !== undefined && metadataPrice !== null && metadataPrice !== "") {
+    const parsed = Number(metadataPrice);
+    if (!isNaN(parsed)) return parsed;
+  }
+  return plan.amount;
+}
+
 /** Los importes del server están en céntimos (ver server/src/entities/Plan.ts). */
 export function formatCents(amount: number, currency = "eur"): string {
   const value = (amount / 100).toLocaleString("es-ES", {

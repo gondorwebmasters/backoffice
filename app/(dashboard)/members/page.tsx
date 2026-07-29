@@ -2,6 +2,7 @@
 
 import { useQuery } from "@apollo/client";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
@@ -22,16 +23,20 @@ import { GET_USERS } from "@/lib/graphql/users";
 const SERVER_PAGE_SIZE = 50; // ver user.service.ts — no configurable desde el cliente
 const PAGE_SIZE = 10; // tamaño de página mostrado en la tabla
 
-const ROLE_LABELS: Record<string, string> = { standard: "Estándar", coach: "Coach", admin: "Admin" };
-
-function memberState(user: User): { tone: "positive" | "neutral" | "warning" | "negative" | "muted"; label: string } {
-  if (user.isBlocked) return { tone: "negative", label: "Bloqueado" };
-  if (user.isPending) return { tone: "warning", label: "Pendiente" };
-  if (user.isActive === false) return { tone: "muted", label: "Inactivo" };
-  return { tone: "positive", label: "Activo" };
+function useMemberState() {
+  const t = useTranslations("members.page.stateLabels");
+  return (user: User): { tone: "positive" | "neutral" | "warning" | "negative" | "muted"; label: string } => {
+    if (user.isBlocked) return { tone: "negative", label: t("blocked") };
+    if (user.isPending) return { tone: "warning", label: t("pending") };
+    if (user.isActive === false) return { tone: "muted", label: t("inactive") };
+    return { tone: "positive", label: t("active") };
+  };
 }
 
 function MembersContent() {
+  const t = useTranslations("members.page");
+  const memberState = useMemberState();
+  const roleLabels = useTranslations("members.page.roleLabels");
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q") ?? "";
   const [search, setSearch] = useState(initialQuery);
@@ -117,7 +122,7 @@ function MembersContent() {
   const columns: Column<User>[] = [
     {
       key: "member",
-      header: "Miembro",
+      header: t("columns.member"),
       render: (user) => (
         <div className="flex items-center gap-3">
           <Avatar size="sm" name={fullName(user)} url={user.pictureUrl?.url} />
@@ -130,19 +135,23 @@ function MembersContent() {
     },
     {
       key: "role",
-      header: "Rol",
+      header: t("columns.role"),
       render: (user) => (
-        <span className="text-zinc-600">{ROLE_LABELS[user.contextRole ?? ""] ?? "—"}</span>
+        <span className="text-zinc-600">
+          {["standard", "coach", "admin"].includes(user.contextRole ?? "")
+            ? roleLabels(user.contextRole as "standard" | "coach" | "admin")
+            : "—"}
+        </span>
       ),
     },
     {
       key: "phone",
-      header: "Teléfono",
+      header: t("columns.phone"),
       render: (user) => <span className="text-zinc-600">{user.phoneNumber ?? "—"}</span>,
     },
     {
       key: "state",
-      header: "Estado",
+      header: t("columns.state"),
       render: (user) => {
         const { tone, label } = memberState(user);
         return <BadgeDot tone={tone} label={label} />;
@@ -156,12 +165,12 @@ function MembersContent() {
         header={
           <>
             <PageHeader
-              title="Miembros"
-              subtitle="Gestión de usuarios de la empresa"
+              title={t("title")}
+              subtitle={t("subtitle")}
               actions={
                 <Button variant="primary" onClick={() => setCreating(true)}>
                   <Plus size={15} strokeWidth={1.5} />
-                  Nuevo miembro
+                  {t("newMember")}
                 </Button>
               }
             />
@@ -200,13 +209,13 @@ function MembersContent() {
         rowKey={(user) => user.id}
         onRowClick={setSelected}
         loading={loading}
-        emptyMessage="No hay miembros que coincidan con los filtros"
+        emptyMessage={t("emptyTable")}
         selection={{ selectedIds, onToggle: toggleSelected, onToggleAll: toggleSelectAll }}
       />
 
       <div className="mt-4 flex items-center justify-end gap-2">
         <span className="text-xs tabular-nums text-zinc-400">
-          Página {serverPage * (SERVER_PAGE_SIZE / PAGE_SIZE) + subPage + 1}
+          {t("pageLabel", { page: serverPage * (SERVER_PAGE_SIZE / PAGE_SIZE) + subPage + 1 })}
         </span>
         <Button size="sm" variant="ghost" disabled={!canGoPrev} onClick={goPrev}>
           <ChevronLeft size={15} strokeWidth={1.5} />

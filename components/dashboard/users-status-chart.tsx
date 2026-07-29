@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import type { UserStats } from "@/lib/graphql/types";
@@ -14,19 +15,21 @@ const TONES = {
 };
 
 export function UsersStatusChart({ users, loading }: { users?: UserStats; loading?: boolean }) {
+  const t = useTranslations("dashboard.usersStatusChart");
+
   if (loading || !users) {
     return <div className="h-40 animate-pulse rounded-lg bg-zinc-100" />;
   }
 
   const data = [
-    { key: "Nuevos", value: users.newUsers, color: TONES.new },
-    { key: "Pendientes", value: users.pendingUsers, color: TONES.pending },
-    { key: "Bloqueados", value: users.blockedUsers, color: TONES.blocked },
-    { key: "Inactivos", value: users.notActiveUsers, color: TONES.inactive },
+    { key: t("new"), value: users.newUsers, color: TONES.new },
+    { key: t("pending"), value: users.pendingUsers, color: TONES.pending },
+    { key: t("blocked"), value: users.blockedUsers, color: TONES.blocked },
+    { key: t("inactive"), value: users.notActiveUsers, color: TONES.inactive },
   ];
 
   if (data.every((item) => item.value === 0)) {
-    return <p className="py-14 text-center text-sm text-zinc-400">Sin novedades en miembros</p>;
+    return <p className="py-14 text-center text-sm text-zinc-400">{t("empty")}</p>;
   }
 
   return (
@@ -39,7 +42,7 @@ export function UsersStatusChart({ users, loading }: { users?: UserStats; loadin
           tick={{ fill: "rgb(var(--z-500))", fontSize: 11 }}
         />
         <YAxis hide allowDecimals={false} />
-        <Tooltip {...CHART_TOOLTIP_STYLE} cursor={{ fill: "rgb(var(--z-100))" }} formatter={(value) => [`${value} miembros`]} />
+        <Tooltip {...CHART_TOOLTIP_STYLE} cursor={{ fill: "rgb(var(--z-100))" }} formatter={(value) => [t("members", { value: Number(value) })]} />
         <Bar dataKey="value" radius={[8, 8, 0, 0]} maxBarSize={44} animationDuration={600} animationEasing="ease-out">
           {data.map((item) => (
             <Cell key={item.key} fill={item.color} />

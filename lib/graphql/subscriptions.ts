@@ -21,6 +21,7 @@ export const SUBSCRIPTION_FIELDS = gql`
       amount
       currency
       interval
+      metadata
     }
   }
 `;

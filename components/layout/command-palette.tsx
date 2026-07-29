@@ -3,6 +3,7 @@
 import { useQuery } from "@apollo/client";
 import { AnimatePresence, motion } from "framer-motion";
 import { CornerDownLeft, Search, UserRound } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -16,7 +17,7 @@ import { useSession } from "./session-provider";
 
 interface PaletteItem {
   id: string;
-  group: "Navegación" | "Miembros";
+  group: string;
   label: string;
   description?: string;
   icon: React.ReactNode;
@@ -30,6 +31,9 @@ type UsersData = {
 export function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void }) {
   const router = useRouter();
   const { user } = useSession();
+  const t = useTranslations("commandPalette");
+  const tMain = useTranslations("nav.main");
+  const tSystem = useTranslations("nav.system");
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
   const [highlighted, setHighlighted] = useState(0);
@@ -58,11 +62,14 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
 
   const items = useMemo<PaletteItem[]>(() => {
     const q = query.trim().toLowerCase();
-    const nav = [...MAIN_NAV, ...(user?.isSuperAdmin ? SYSTEM_NAV : [])]
+    const nav = [
+      ...MAIN_NAV.map((item) => ({ ...item, label: tMain(item.labelKey) })),
+      ...(user?.isSuperAdmin ? SYSTEM_NAV.map((item) => ({ ...item, label: tSystem(item.labelKey) })) : []),
+    ]
       .filter((item) => !q || item.label.toLowerCase().includes(q))
       .map<PaletteItem>((item) => ({
         id: `nav-${item.href}`,
-        group: "Navegación",
+        group: t("groupNavigation"),
         label: item.label,
         icon: <item.icon size={15} strokeWidth={1.5} />,
         action: () => router.push(item.href),
@@ -70,7 +77,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
 
     const members = (usersData?.getUsers?.users ?? []).slice(0, 6).map<PaletteItem>((member) => ({
       id: `user-${member.id}`,
-      group: "Miembros",
+      group: t("groupMembers"),
       label: fullName(member),
       description: member.email ?? undefined,
       icon: <UserRound size={15} strokeWidth={1.5} />,
@@ -78,7 +85,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
     }));
 
     return [...nav, ...(debounced.length >= 2 ? members : [])];
-  }, [query, debounced, usersData, user?.isSuperAdmin, router]);
+  }, [query, debounced, usersData, user?.isSuperAdmin, router, t, tMain, tSystem]);
 
   useEffect(() => {
     setHighlighted(0);
@@ -133,7 +140,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             onKeyDown={onKeyDown}
-            placeholder="Buscar pantallas o miembros…"
+            placeholder={t("placeholder")}
             className="h-12 w-full bg-transparent text-sm text-zinc-900 outline-none placeholder:text-zinc-400"
           />
         </div>
@@ -181,14 +188,14 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
           })}
           {items.length === 0 ? (
             <li className="px-4 py-10 text-center text-xs text-zinc-400">
-              {loadingUsers ? "Buscando…" : "Sin resultados"}
+              {loadingUsers ? t("searching") : t("noResults")}
             </li>
           ) : null}
         </ul>
         <div className="flex items-center gap-3 border-t border-zinc-100 px-4 py-2 text-[10px] text-zinc-400">
-          <span>↑↓ navegar</span>
-          <span>↵ abrir</span>
-          <span>esc cerrar</span>
+          <span>↑↓ {t("navigate")}</span>
+          <span>↵ {t("open")}</span>
+          <span>esc {t("close")}</span>
         </div>
           </motion.div>
         </div>

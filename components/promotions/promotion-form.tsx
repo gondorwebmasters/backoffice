@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation } from "@apollo/client";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,7 @@ interface PromotionFormProps {
 }
 
 export function PromotionForm({ open, promotion, onClose, onSaved }: PromotionFormProps) {
+  const t = useTranslations("promotions.form");
   const toast = useToast();
   const [form, setForm] = useState(EMPTY_FORM);
 
@@ -90,20 +92,20 @@ export function PromotionForm({ open, promotion, onClose, onSaved }: PromotionFo
     if (promotion) {
       const { data } = await updatePromotion({ variables: { id: promotion.id, promotion: input } });
       if (data?.updatePromotion?.success) {
-        toast("Promoción actualizada");
+        toast(t("updated"));
         onSaved();
         onClose();
       } else {
-        toast(data?.updatePromotion?.message ?? "No se pudo actualizar", "error");
+        toast(data?.updatePromotion?.message ?? t("updateFailed"), "error");
       }
     } else {
       const { data } = await createPromotion({ variables: { promotion: input } });
       if (data?.createPromotion?.success) {
-        toast("Promoción creada");
+        toast(t("created"));
         onSaved();
         onClose();
       } else {
-        toast(data?.createPromotion?.message ?? "No se pudo crear", "error");
+        toast(data?.createPromotion?.message ?? t("createFailed"), "error");
       }
     }
   };
@@ -119,31 +121,31 @@ export function PromotionForm({ open, promotion, onClose, onSaved }: PromotionFo
     <SlideOver
       open={open}
       onClose={onClose}
-      title={promotion ? `Editar ${promotion.title}` : "Nueva promoción"}
-      subtitle={promotion ? "Oferta visible en la app para los miembros" : "Crea una oferta destacada para los miembros"}
+      title={promotion ? t("editTitle", { title: promotion.title }) : t("newPromotion")}
+      subtitle={promotion ? t("editSubtitle") : t("createSubtitle")}
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>
-            Cancelar
+            {t("cancel")}
           </Button>
           <Button variant="primary" onClick={handleSubmit} disabled={!valid || loading}>
-            {loading ? "Guardando…" : promotion ? "Guardar cambios" : "Crear promoción"}
+            {loading ? t("saving") : promotion ? t("saveChanges") : t("createPromotion")}
           </Button>
         </>
       }
     >
       <div className="space-y-5">
-        <Field label="Título">
+        <Field label={t("titleField")}>
           <Input value={form.title} onChange={(event) => set("title")(event.target.value)} />
         </Field>
-        <Field label="Descripción">
+        <Field label={t("description")}>
           <Textarea value={form.description} onChange={(event) => set("description")(event.target.value)} />
         </Field>
         <div className="grid grid-cols-2 gap-4">
-          <Field label="Etiqueta de descuento" hint="Ej. -40% OFF, 3x2">
+          <Field label={t("discountTag")} hint={t("discountTagHint")}>
             <Input value={form.discountTag} onChange={(event) => set("discountTag")(event.target.value)} />
           </Field>
-          <Field label="Color de acento">
+          <Field label={t("accentColor")}>
             <div className="flex items-center gap-2">
               <input
                 type="color"
@@ -156,7 +158,7 @@ export function PromotionForm({ open, promotion, onClose, onSaved }: PromotionFo
           </Field>
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <Field label="Precio original (€)">
+          <Field label={t("originalPrice")}>
             <Input
               type="number"
               min={0}
@@ -165,7 +167,7 @@ export function PromotionForm({ open, promotion, onClose, onSaved }: PromotionFo
               onChange={(event) => set("originalPrice")(event.target.value)}
             />
           </Field>
-          <Field label="Precio con descuento (€)">
+          <Field label={t("discountedPrice")}>
             <Input
               type="number"
               min={0}
@@ -175,17 +177,17 @@ export function PromotionForm({ open, promotion, onClose, onSaved }: PromotionFo
             />
           </Field>
         </div>
-        <Field label="Expira">
+        <Field label={t("expires")}>
           <DatePicker withTime value={form.expiresAt} onChange={set("expiresAt")} />
         </Field>
         <div className="flex items-center gap-6">
           <label className="flex items-center gap-2 text-sm text-zinc-700">
             <Checkbox checked={form.isActive} onChange={(event) => set("isActive")(event.target.checked)} />
-            Activa
+            {t("active")}
           </label>
           <label className="flex items-center gap-2 text-sm text-zinc-700">
             <Checkbox checked={form.isHero} onChange={(event) => set("isHero")(event.target.checked)} />
-            Destacada (VIP)
+            {t("featured")}
           </label>
         </div>
       </div>

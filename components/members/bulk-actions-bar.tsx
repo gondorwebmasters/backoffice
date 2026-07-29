@@ -3,6 +3,7 @@
 import { useMutation } from "@apollo/client";
 import { AnimatePresence, motion } from "framer-motion";
 import { Ban, CheckCircle2, Trash2, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ interface BulkActionsBarProps {
  * sobre los miembros seleccionados.
  */
 export function BulkActionsBar({ users, onClear, onDone }: BulkActionsBarProps) {
+  const t = useTranslations("members.bulkActions");
   const toast = useToast();
   const [updateUser] = useMutation(UPDATE_USER);
   const [deleteUser] = useMutation(DELETE_USER);
@@ -46,8 +48,8 @@ export function BulkActionsBar({ users, onClear, onDone }: BulkActionsBarProps) 
     setBusy(null);
     toast(
       failed
-        ? `${count - failed} de ${count} miembros actualizados (${failed} con error)`
-        : `${count} ${count === 1 ? "miembro actualizado" : "miembros actualizados"}`,
+        ? t("updatedPartial", { updated: count - failed, count, failed })
+        : t("updatedSuccess", { count }),
       failed ? "error" : "success",
     );
     onDone();
@@ -61,8 +63,8 @@ export function BulkActionsBar({ users, onClear, onDone }: BulkActionsBarProps) 
     setConfirmDelete(false);
     toast(
       failed
-        ? `${count - failed} de ${count} miembros eliminados (${failed} con error)`
-        : `${count} ${count === 1 ? "miembro eliminado" : "miembros eliminados"}`,
+        ? t("deletedPartial", { updated: count - failed, count, failed })
+        : t("deletedSuccess", { count }),
       failed ? "error" : "success",
     );
     onDone();
@@ -84,26 +86,24 @@ export function BulkActionsBar({ users, onClear, onDone }: BulkActionsBarProps) 
                 <button
                   onClick={onClear}
                   className="rounded-lg p-1 text-zinc-400 transition-colors hover:bg-white hover:text-zinc-700"
-                  aria-label="Limpiar selección"
+                  aria-label={t("clearSelection")}
                 >
                   <X size={14} strokeWidth={1.5} />
                 </button>
-                <span className="text-sm font-medium text-zinc-700">
-                  {count} {count === 1 ? "miembro seleccionado" : "miembros seleccionados"}
-                </span>
+                <span className="text-sm font-medium text-zinc-700">{t("selected", { count })}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Button size="sm" variant="secondary" disabled={busy !== null} onClick={() => setBlocked(false)}>
                   <CheckCircle2 size={14} strokeWidth={1.5} />
-                  {busy === "unblock" ? "…" : "Desbloquear"}
+                  {busy === "unblock" ? "…" : t("unblock")}
                 </Button>
                 <Button size="sm" variant="secondary" disabled={busy !== null} onClick={() => setBlocked(true)}>
                   <Ban size={14} strokeWidth={1.5} />
-                  {busy === "block" ? "…" : "Bloquear"}
+                  {busy === "block" ? "…" : t("block")}
                 </Button>
                 <Button size="sm" variant="danger" disabled={busy !== null} onClick={() => setConfirmDelete(true)}>
                   <Trash2 size={14} strokeWidth={1.5} />
-                  Eliminar
+                  {t("delete")}
                 </Button>
               </div>
             </div>
@@ -113,9 +113,9 @@ export function BulkActionsBar({ users, onClear, onDone }: BulkActionsBarProps) 
 
       <ConfirmDialog
         open={confirmDelete}
-        title={`Eliminar ${count} ${count === 1 ? "miembro" : "miembros"}`}
-        description="Esta acción no se puede deshacer. Se eliminarán las cuentas seleccionadas y su acceso a la empresa."
-        confirmLabel="Eliminar"
+        title={t("deleteConfirmTitle", { count })}
+        description={t("deleteConfirmDescription")}
+        confirmLabel={t("delete")}
         danger
         loading={busy === "delete"}
         onConfirm={handleDelete}

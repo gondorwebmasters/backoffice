@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery } from "@apollo/client";
 import { Plus, Star, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { PromotionForm } from "@/components/promotions/promotion-form";
@@ -28,6 +29,7 @@ function isExpired(promotion: Promotion): boolean {
 const PAGE_SIZE = 10;
 
 export default function PromotionsPage() {
+  const t = useTranslations("promotions");
   const toast = useToast();
   const [editing, setEditing] = useState<Promotion | null>(null);
   const [formOpen, setFormOpen] = useState(false);
@@ -48,10 +50,10 @@ export default function PromotionsPage() {
     if (!deleting) return;
     const { data: result } = await deletePromotion({ variables: { id: deleting.id } });
     if (result?.deletePromotion?.success) {
-      toast("Promoción eliminada");
+      toast(t("deleted"));
       refetch();
     } else {
-      toast(result?.deletePromotion?.message ?? "No se pudo eliminar", "error");
+      toast(result?.deletePromotion?.message ?? t("deleteFailed"), "error");
     }
     setDeleting(null);
   };
@@ -59,7 +61,7 @@ export default function PromotionsPage() {
   const columns: Column<Promotion>[] = [
     {
       key: "title",
-      header: "Promoción",
+      header: t("columns.promotion"),
       render: (promo) => (
         <div className="flex items-center gap-2">
           {promo.isHero ? <Star size={14} className="shrink-0 text-amber-500" fill="currentColor" /> : null}
@@ -72,7 +74,7 @@ export default function PromotionsPage() {
     },
     {
       key: "discount",
-      header: "Descuento",
+      header: t("columns.discount"),
       render: (promo) => (
         <span className="inline-flex rounded-md bg-zinc-100 px-2 py-0.5 text-xs font-semibold text-zinc-700">
           {promo.discountTag}
@@ -81,7 +83,7 @@ export default function PromotionsPage() {
     },
     {
       key: "pricing",
-      header: "Precio",
+      header: t("columns.price"),
       render: (promo) => (
         <span className="tabular-nums text-zinc-700">
           <span className="text-zinc-400 line-through">{formatEuros(promo.originalPrice)}</span>
@@ -92,19 +94,19 @@ export default function PromotionsPage() {
     },
     {
       key: "expiresAt",
-      header: "Expira",
+      header: t("columns.expires"),
       render: (promo) => <span className="text-zinc-600">{formatDateTime(promo.expiresAt)}</span>,
     },
     {
       key: "status",
-      header: "Estado",
+      header: t("columns.status"),
       render: (promo) =>
         !promo.isActive ? (
-          <BadgeDot tone="muted" label="Inactiva" />
+          <BadgeDot tone="muted" label={t("statusLabels.inactive")} />
         ) : isExpired(promo) ? (
-          <BadgeDot tone="neutral" label="Expirada" />
+          <BadgeDot tone="neutral" label={t("statusLabels.expired")} />
         ) : (
-          <BadgeDot tone="positive" label="Activa" />
+          <BadgeDot tone="positive" label={t("statusLabels.active")} />
         ),
     },
     {
@@ -118,7 +120,7 @@ export default function PromotionsPage() {
             setDeleting(promo);
           }}
           className="rounded-lg p-1.5 text-zinc-300 transition-colors hover:bg-red-50 hover:text-red-500"
-          title="Eliminar promoción"
+          title={t("deletePromotion")}
         >
           <Trash2 size={15} strokeWidth={1.5} />
         </button>
@@ -131,8 +133,8 @@ export default function PromotionsPage() {
       <PageShell
         header={
           <PageHeader
-            title="Promociones"
-            subtitle="Ofertas y descuentos exclusivos mostrados en la app"
+            title={t("title")}
+            subtitle={t("subtitle")}
             actions={
               <Button
                 variant="primary"
@@ -142,7 +144,7 @@ export default function PromotionsPage() {
                 }}
               >
                 <Plus size={15} strokeWidth={1.5} />
-                Nueva promoción
+                {t("newPromotion")}
               </Button>
             }
           />
@@ -157,18 +159,18 @@ export default function PromotionsPage() {
             setFormOpen(true);
           }}
           loading={loading}
-          emptyMessage="Aún no hay promociones creadas"
+          emptyMessage={t("emptyTable")}
         />
-        <Pagination page={page} pageCount={pageCount} onChange={setPage} totalLabel={`${allPromotions.length} promociones`} />
+        <Pagination page={page} pageCount={pageCount} onChange={setPage} totalLabel={t("totalLabel", { count: allPromotions.length })} />
       </PageShell>
 
       <PromotionForm open={formOpen} promotion={editing} onClose={() => setFormOpen(false)} onSaved={() => refetch()} />
 
       <ConfirmDialog
         open={Boolean(deleting)}
-        title="Eliminar promoción"
-        description={`La promoción "${deleting?.title}" se eliminará permanentemente y dejará de mostrarse en la app.`}
-        confirmLabel="Eliminar"
+        title={t("deletePromotion")}
+        description={t("deleteConfirmDescription", { title: deleting?.title ?? "" })}
+        confirmLabel={t("delete")}
         danger
         loading={deleteState.loading}
         onConfirm={handleDelete}

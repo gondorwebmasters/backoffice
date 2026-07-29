@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation } from "@apollo/client";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -10,14 +11,10 @@ import { useToast } from "@/components/ui/toast";
 import { CREATE_COMPANY, UPDATE_COMPANY } from "@/lib/graphql/companies";
 import type { Company } from "@/lib/graphql/types";
 
-const CONFIG_LABELS = {
-  pollsEnabled: "Encuestas",
-  productsEnabled: "Tienda de productos",
-  chatEnabled: "Chat",
-  trainingEnabled: "Entrenamiento",
-} as const;
+const CONFIG_KEYS = ["pollsEnabled", "productsEnabled", "chatEnabled", "trainingEnabled"] as const;
 
 export function CreateCompanyForm({ onDone }: { onDone: () => void }) {
+  const t = useTranslations("system.companyForm");
   const toast = useToast();
   const [form, setForm] = useState({ name: "", email: "", phoneNumber: "", address: "" });
   const [createCompany, { loading }] = useMutation(CREATE_COMPANY);
@@ -30,33 +27,33 @@ export function CreateCompanyForm({ onDone }: { onDone: () => void }) {
     try {
       const { data } = await createCompany({ variables: { company: form } });
       if (data?.createCompany?.success) {
-        toast("Empresa creada");
+        toast(t("created"));
         onDone();
       } else {
-        toast(data?.createCompany?.message ?? "No se pudo crear la empresa", "error");
+        toast(data?.createCompany?.message ?? t("createFailed"), "error");
       }
     } catch {
-      toast("No se pudo crear la empresa", "error");
+      toast(t("createFailed"), "error");
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <Field label="Nombre">
+      <Field label={t("name")}>
         <Input value={form.name} onChange={set("name")} required autoFocus />
       </Field>
-      <Field label="Email">
+      <Field label={t("email")}>
         <Input type="email" value={form.email} onChange={set("email")} required />
       </Field>
-      <Field label="Teléfono">
+      <Field label={t("phone")}>
         <Input type="tel" value={form.phoneNumber} onChange={set("phoneNumber")} required />
       </Field>
-      <Field label="Dirección">
+      <Field label={t("address")}>
         <Input value={form.address} onChange={set("address")} required />
       </Field>
       <div className="flex justify-end pt-1">
         <Button type="submit" variant="primary" disabled={loading}>
-          {loading ? "Creando…" : "Crear empresa"}
+          {loading ? t("creating") : t("createCompany")}
         </Button>
       </div>
     </form>
@@ -64,7 +61,15 @@ export function CreateCompanyForm({ onDone }: { onDone: () => void }) {
 }
 
 export function EditCompanyForm({ company, onDone }: { company: Company; onDone: () => void }) {
+  const t = useTranslations("system.companyForm");
   const toast = useToast();
+
+  const CONFIG_LABELS: Record<(typeof CONFIG_KEYS)[number], string> = {
+    pollsEnabled: t("configLabels.pollsEnabled"),
+    productsEnabled: t("configLabels.productsEnabled"),
+    chatEnabled: t("configLabels.chatEnabled"),
+    trainingEnabled: t("configLabels.trainingEnabled"),
+  };
   const [form, setForm] = useState({
     name: company.name,
     email: company.email ?? "",
@@ -109,38 +114,38 @@ export function EditCompanyForm({ company, onDone }: { company: Company; onDone:
         },
       });
       if (data?.updateCompany?.success) {
-        toast("Empresa actualizada");
+        toast(t("updated"));
         onDone();
       } else {
-        toast(data?.updateCompany?.message ?? "No se pudo actualizar la empresa", "error");
+        toast(data?.updateCompany?.message ?? t("updateFailed"), "error");
       }
     } catch {
-      toast("No se pudo actualizar la empresa", "error");
+      toast(t("updateFailed"), "error");
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <Field label="Nombre">
+      <Field label={t("name")}>
         <Input value={form.name} onChange={set("name")} required />
       </Field>
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field label="Email">
+        <Field label={t("email")}>
           <Input type="email" value={form.email} onChange={set("email")} />
         </Field>
-        <Field label="Teléfono">
+        <Field label={t("phone")}>
           <Input type="tel" value={form.phoneNumber} onChange={set("phoneNumber")} />
         </Field>
       </div>
-      <Field label="Dirección">
+      <Field label={t("address")}>
         <Input value={form.address} onChange={set("address")} />
       </Field>
-      <Field label="Código de acceso" hint="Los miembros lo usan para solicitar ingreso">
+      <Field label={t("accessCode")} hint={t("accessCodeHint")}>
         <Input value={form.code} onChange={set("code")} className="font-mono tracking-widest" />
       </Field>
 
       <div className="space-y-1.5">
-        <span className="text-xs font-medium uppercase tracking-wider text-zinc-400">Módulos activos</span>
+        <span className="text-xs font-medium uppercase tracking-wider text-zinc-400">{t("activeModules")}</span>
         <div className="grid gap-2.5">
           {(Object.keys(CONFIG_LABELS) as (keyof typeof CONFIG_LABELS)[]).map((key) => (
             <label
@@ -164,7 +169,7 @@ export function EditCompanyForm({ company, onDone }: { company: Company; onDone:
 
       <div className="flex justify-end pt-1">
         <Button type="submit" variant="primary" disabled={loading}>
-          {loading ? "Guardando…" : "Guardar cambios"}
+          {loading ? t("saving") : t("saveChanges")}
         </Button>
       </div>
     </form>

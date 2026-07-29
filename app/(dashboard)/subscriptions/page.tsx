@@ -1,6 +1,7 @@
 "use client";
 
 import { useLazyQuery, useQuery } from "@apollo/client";
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { MemberPanel } from "@/components/members/member-panel";
@@ -10,41 +11,41 @@ import { Pagination } from "@/components/ui/pagination";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageShell } from "@/components/ui/sticky-header";
 import { Dropdown } from "@/components/ui/dropdown";
-import { formatCents, formatDate, fullName } from "@/lib/format";
+import { formatCents, formatDate, fullName, planPriceCents } from "@/lib/format";
 import { GET_PLAN_WITH_SUBSCRIPTIONS, LIST_PLANS } from "@/lib/graphql/plans";
 import { GET_SUBSCRIPTIONS_STATS } from "@/lib/graphql/stats";
 import type { Plan, Subscription, SubscriptionsStat, User } from "@/lib/graphql/types";
 import { FIND_USER } from "@/lib/graphql/users";
 
-const STATUS_META: Record<string, { label: string; tone: "positive" | "neutral" | "warning" | "negative" | "muted" }> = {
-  active: { label: "Activa", tone: "positive" },
-  trialing: { label: "En prueba", tone: "neutral" },
-  past_due: { label: "Pago vencido", tone: "warning" },
-  paused: { label: "Pausada", tone: "muted" },
-  canceled: { label: "Cancelada", tone: "muted" },
-  unpaid: { label: "Impagada", tone: "negative" },
-  incomplete: { label: "Incompleta", tone: "warning" },
-  incomplete_expired: { label: "Expirada", tone: "muted" },
+const STATUS_TONES: Record<string, "positive" | "neutral" | "warning" | "negative" | "muted"> = {
+  active: "positive",
+  trialing: "neutral",
+  past_due: "warning",
+  paused: "muted",
+  canceled: "muted",
+  unpaid: "negative",
+  incomplete: "warning",
+  incomplete_expired: "muted",
 };
 
-// La tarjeta de resumen ("stats") solo cuenta suscripciones activas — si la
-// tabla mostrase todos los estados por defecto (incl. canceladas/expiradas),
-// el número de la tarjeta y el de la lista no coincidirían nunca. "Activas"
-// como filtro inicial es lo que hace que ambos números cuadren; el resto de
-// estados sigue disponible para auditar el histórico.
-const STATUS_FILTERS = [
-  { value: "active", label: "Activas" },
-  { value: "", label: "Todos los estados" },
-  { value: "trialing", label: "En prueba" },
-  { value: "past_due", label: "Pago vencido" },
-  { value: "unpaid", label: "Impagadas" },
-  { value: "paused", label: "Pausadas" },
-  { value: "canceled", label: "Canceladas" },
-];
+const STATUS_FILTER_VALUES = ["active", "", "trialing", "past_due", "unpaid", "paused", "canceled"] as const;
 
 const PAGE_SIZE = 10;
 
 export default function SubscriptionsPage() {
+  const t = useTranslations("subscriptions");
+  const statusLabels = useTranslations("subscriptions.statusLabels");
+
+  // La tarjeta de resumen ("stats") solo cuenta suscripciones activas — si la
+  // tabla mostrase todos los estados por defecto (incl. canceladas/expiradas),
+  // el número de la tarjeta y el de la lista no coincidirían nunca. "Activas"
+  // como filtro inicial es lo que hace que ambos números cuadren; el resto de
+  // estados sigue disponible para auditar el histórico.
+  const STATUS_FILTERS = STATUS_FILTER_VALUES.map((value) => ({
+    value,
+    label: t(`statusFilters.${value || "all"}`),
+  }));
+
   const [planId, setPlanId] = useState("");
   const [statusFilter, setStatusFilter] = useState("active");
   const [page, setPage] = useState(0);
@@ -82,29 +83,29 @@ export default function SubscriptionsPage() {
   const columns: Column<Subscription>[] = [
     {
       key: "user",
-      header: "Miembro",
+      header: t("columns.member"),
       render: (subscription) => (
         <span className="text-zinc-700">{subscription.user ? fullName(subscription.user) : "—"}</span>
       ),
     },
     {
       key: "since",
-      header: "Alta",
+      header: t("columns.since"),
       render: (subscription) => <span className="text-zinc-600">{formatDate(subscription.created_at)}</span>,
     },
     {
       key: "periodEnd",
-      header: "Fin de periodo",
+      header: t("columns.periodEnd"),
       render: (subscription) => <span className="text-zinc-600">{formatDate(subscription.currentPeriodEnd)}</span>,
     },
     {
       key: "nextBilling",
-      header: "Próximo cobro",
+      header: t("columns.nextBilling"),
       render: (subscription) => <span className="text-zinc-600">{formatDate(subscription.nextBillingDate)}</span>,
     },
     {
       key: "failed",
-      header: "Fallos de cobro",
+      header: t("columns.failedPayments"),
       render: (subscription) => (
         <span className={subscription.failedPaymentAttempts > 0 ? "text-red-600" : "text-zinc-400"}>
           {subscription.failedPaymentAttempts}
@@ -113,10 +114,15 @@ export default function SubscriptionsPage() {
     },
     {
       key: "status",
-      header: "Estado",
+      header: t("columns.status"),
       render: (subscription) => {
-        const meta = STATUS_META[subscription.status] ?? { label: subscription.status, tone: "neutral" as const };
-        return <BadgeDot tone={meta.tone} label={meta.label} />;
+        const tone = STATUS_TONES[subscription.status] ?? "neutral";
+        const label = ["active", "trialing", "past_due", "paused", "canceled", "unpaid", "incomplete", "incomplete_expired"].includes(
+          subscription.status,
+        )
+          ? statusLabels(subscription.status as Parameters<typeof statusLabels>[0])
+          : subscription.status;
+        return <BadgeDot tone={tone} label={label} />;
       },
     },
   ];
@@ -126,7 +132,7 @@ export default function SubscriptionsPage() {
       <PageShell
         header={
           <>
-            <PageHeader title="Suscripciones" subtitle="Estado de las suscripciones por plan" />
+            <PageHeader title={t("title")} subtitle={t("subtitle")} />
 
             <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
               {totalByPlan.map((stat) => (
@@ -139,7 +145,7 @@ export default function SubscriptionsPage() {
                 >
                   <p className="truncate text-xs font-medium uppercase tracking-wider text-zinc-400">{stat.planName}</p>
                   <p className="mt-1.5 text-2xl font-semibold tracking-tight text-zinc-900">{stat.count}</p>
-                  <p className="text-xs text-zinc-400">suscripciones activas</p>
+                  <p className="text-xs text-zinc-400">{t("activeSubscriptions")}</p>
                 </button>
               ))}
             </div>
@@ -149,9 +155,9 @@ export default function SubscriptionsPage() {
                 <Dropdown
                   options={(plans.data?.listPlans?.plans ?? []).map((plan) => ({
                     value: plan.id,
-                    label: `${plan.name} · ${formatCents(plan.amount, plan.currency)}`,
+                    label: `${plan.name} · ${formatCents(planPriceCents(plan), plan.currency)}`,
                   }))}
-                  placeholder="Selecciona un plan para ver sus suscripciones…"
+                  placeholder={t("selectPlanPlaceholder")}
                   value={planId}
                   onChange={selectPlan}
                   searchable
@@ -181,18 +187,18 @@ export default function SubscriptionsPage() {
               rowKey={(subscription) => subscription.id}
               onRowClick={openMember}
               loading={planDetail.loading}
-              emptyMessage="No hay suscripciones que coincidan con el filtro"
+              emptyMessage={t("emptyTable")}
             />
             <Pagination
               page={page}
               pageCount={pageCount}
               onChange={setPage}
-              totalLabel={`${filteredSubscriptions.length} suscripciones`}
+              totalLabel={t("totalLabel", { count: filteredSubscriptions.length })}
             />
           </>
         ) : (
           <p className="rounded-xl border border-dashed border-zinc-200 py-16 text-center text-sm text-zinc-400">
-            Elige un plan para ver el detalle de sus suscripciones
+            {t("selectPlanHint")}
           </p>
         )}
       </PageShell>

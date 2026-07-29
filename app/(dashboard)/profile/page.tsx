@@ -1,6 +1,7 @@
 "use client";
 
 import { BadgeCheck, Mail } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { useSession } from "@/components/layout/session-provider";
 import { AppearanceCard } from "@/components/profile/appearance-card";
@@ -11,14 +12,15 @@ import { Chip } from "@/components/ui/chip";
 import { fullName } from "@/lib/format";
 import type { UserRole } from "@/lib/graphql/types";
 
-const ROLE_LABELS: Record<UserRole, string> = {
-  admin: "Administrador",
-  coach: "Entrenador",
-  standard: "Estándar",
-};
-
 export default function ProfilePage() {
+  const t = useTranslations("profile.page");
   const { user, loading } = useSession();
+
+  const ROLE_LABELS: Record<UserRole, string> = {
+    admin: t("roleLabels.admin"),
+    coach: t("roleLabels.coach"),
+    standard: t("roleLabels.standard"),
+  };
 
   if (loading && !user) {
     return (
@@ -64,7 +66,7 @@ export default function ProfilePage() {
                 <Chip className="border-white/20 bg-white/15 text-primary-foreground backdrop-blur-sm">
                   <span className="flex items-center gap-1">
                     <BadgeCheck size={12} strokeWidth={2} />
-                    Superadmin
+                    {t("superadmin")}
                   </span>
                 </Chip>
               ) : null}

@@ -125,6 +125,7 @@ export interface Plan {
   isActive: boolean;
   features?: string[] | null;
   subscriptions?: Subscription[] | null;
+  metadata?: { price?: number | string | null } & Record<string, unknown> | null;
 }
 
 export interface Subscription {

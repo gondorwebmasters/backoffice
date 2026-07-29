@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery } from "@apollo/client";
 import { Archive, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { PlanForm } from "@/components/plans/plan-form";
@@ -13,21 +14,22 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Pagination } from "@/components/ui/pagination";
 import { PageShell } from "@/components/ui/sticky-header";
 import { useToast } from "@/components/ui/toast";
-import { formatCents } from "@/lib/format";
+import { formatCents, planPriceCents } from "@/lib/format";
 import { ARCHIVE_PLAN, LIST_PLANS } from "@/lib/graphql/plans";
 import type { Plan } from "@/lib/graphql/types";
-
-const INTERVAL_LABELS: Record<string, string> = {
-  day: "diario",
-  week: "semanal",
-  month: "mensual",
-  year: "anual",
-};
 
 const PAGE_SIZE = 10;
 
 export default function PlansPage() {
+  const t = useTranslations("plans");
   const toast = useToast();
+
+  const INTERVAL_LABELS: Record<string, string> = {
+    day: t("intervals.day"),
+    week: t("intervals.week"),
+    month: t("intervals.month"),
+    year: t("intervals.year"),
+  };
   const [editing, setEditing] = useState<Plan | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [archiving, setArchiving] = useState<Plan | null>(null);
@@ -44,10 +46,10 @@ export default function PlansPage() {
     if (!archiving) return;
     const { data: result } = await archivePlan({ variables: { planId: archiving.id } });
     if (result?.archivePlan?.success) {
-      toast("Plan archivado");
+      toast(t("archived"));
       refetch();
     } else {
-      toast(result?.archivePlan?.message ?? "No se pudo archivar", "error");
+      toast(result?.archivePlan?.message ?? t("archiveFailed"), "error");
     }
     setArchiving(null);
   };
@@ -55,7 +57,7 @@ export default function PlansPage() {
   const columns: Column<Plan>[] = [
     {
       key: "name",
-      header: "Plan",
+      header: t("columns.plan"),
       render: (plan) => (
         <div>
           <p className="font-medium text-zinc-900">{plan.name}</p>
@@ -65,28 +67,28 @@ export default function PlansPage() {
     },
     {
       key: "price",
-      header: "Precio",
+      header: t("columns.price"),
       render: (plan) => (
         <span className="tabular-nums text-zinc-700">
-          {formatCents(plan.amount, plan.currency)}
+          {formatCents(planPriceCents(plan), plan.currency)}
           <span className="text-zinc-400"> / {INTERVAL_LABELS[plan.interval] ?? plan.interval}</span>
         </span>
       ),
     },
     {
       key: "trial",
-      header: "Prueba",
+      header: t("columns.trial"),
       render: (plan) => (
-        <span className="text-zinc-600">{plan.trialPeriodDays ? `${plan.trialPeriodDays} días` : "—"}</span>
+        <span className="text-zinc-600">{plan.trialPeriodDays ? t("trialDays", { count: plan.trialPeriodDays }) : "—"}</span>
       ),
     },
     {
       key: "status",
-      header: "Estado",
+      header: t("columns.status"),
       render: (plan) => (
         <BadgeDot
           tone={plan.status === "active" ? "positive" : plan.status === "archived" ? "muted" : "neutral"}
-          label={plan.status === "active" ? "Activo" : plan.status === "archived" ? "Archivado" : "Inactivo"}
+          label={plan.status === "active" ? t("statusLabels.active") : plan.status === "archived" ? t("statusLabels.archived") : t("statusLabels.inactive")}
         />
       ),
     },
@@ -102,7 +104,7 @@ export default function PlansPage() {
               setArchiving(plan);
             }}
             className="rounded-lg p-1.5 text-zinc-300 transition-colors hover:bg-zinc-100 hover:text-zinc-600"
-            title="Archivar plan"
+            title={t("archivePlan")}
           >
             <Archive size={15} strokeWidth={1.5} />
           </button>
@@ -115,8 +117,8 @@ export default function PlansPage() {
       <PageShell
         header={
           <PageHeader
-            title="Planes"
-            subtitle="Planes de suscripción de la empresa"
+            title={t("title")}
+            subtitle={t("subtitle")}
             actions={
               <Button
                 variant="primary"
@@ -126,7 +128,7 @@ export default function PlansPage() {
                 }}
               >
                 <Plus size={15} strokeWidth={1.5} />
-                Nuevo plan
+                {t("newPlan")}
               </Button>
             }
           />
@@ -141,18 +143,18 @@ export default function PlansPage() {
             setFormOpen(true);
           }}
           loading={loading}
-          emptyMessage="Aún no hay planes creados"
+          emptyMessage={t("emptyTable")}
         />
-        <Pagination page={page} pageCount={pageCount} onChange={setPage} totalLabel={`${allPlans.length} planes`} />
+        <Pagination page={page} pageCount={pageCount} onChange={setPage} totalLabel={t("totalLabel", { count: allPlans.length })} />
       </PageShell>
 
       <PlanForm open={formOpen} plan={editing} onClose={() => setFormOpen(false)} onSaved={() => refetch()} />
 
       <ConfirmDialog
         open={Boolean(archiving)}
-        title="Archivar plan"
-        description={`El plan "${archiving?.name}" dejará de estar disponible para nuevas suscripciones. Las existentes no se ven afectadas.`}
-        confirmLabel="Archivar"
+        title={t("archivePlan")}
+        description={t("archiveConfirmDescription", { name: archiving?.name ?? "" })}
+        confirmLabel={t("archive")}
         loading={archiveState.loading}
         onConfirm={handleArchive}
         onCancel={() => setArchiving(null)}

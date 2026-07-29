@@ -1,7 +1,9 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { cn } from "@/lib/cn";
-import { addDays, DAYS_SHORT } from "@/lib/format";
+import { addDays } from "@/lib/format";
 import type { Schedule } from "@/lib/graphql/types";
 
 import { ScheduleBlock } from "./schedule-block";
@@ -28,6 +30,7 @@ export function WeekView({
   loading?: boolean;
   onSelect: (schedule: Schedule) => void;
 }) {
+  const t = useTranslations("calendar.days");
   const days = Array.from({ length: 7 }, (_, index) => addDays(weekStart, index));
   const now = new Date();
   const today = now.toDateString();
@@ -68,7 +71,7 @@ export function WeekView({
                   isToday ? "text-primary" : "text-zinc-400",
                 )}
               >
-                {DAYS_SHORT[index]}
+                {t(String(index))}
               </p>
               <p
                 className={cn(

@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "framer-motion";
 import { Dumbbell } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useLayoutEffect, useState } from "react";
 import Image from "next/image";
 
@@ -23,6 +24,7 @@ const letterVariants: Variants = {
 export function SessionSplash() {
   const [visible, setVisible] = useState(false);
   const reducedMotion = useReducedMotion();
+  const t = useTranslations("sessionSplash");
 
   // useLayoutEffect: decide *antes* del primer paint para no dejar ver el
   // dashboard un frame y luego tapar con el splash (parpadeo inverso).
@@ -100,7 +102,7 @@ export function SessionSplash() {
             transition={{ delay: reducedMotion ? 0.1 : 0.75, duration: 0.3, ease: BRAND_EASE }}
             className="text-xs uppercase tracking-[0.2em] text-zinc-400"
           >
-            Panel de administración
+            {t("subtitle")}
           </motion.p>
         </motion.div>
       ) : null}

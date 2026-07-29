@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery } from "@apollo/client";
 import { Plus, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ import { CREATE_POLL, GET_ADMIN_POLLS, REMOVE_POLLS } from "@/lib/graphql/polls"
 import type { Poll } from "@/lib/graphql/types";
 
 function PollCard({ poll, onRemove }: { poll: Poll; onRemove: () => void }) {
+  const t = useTranslations("polls");
   const votes = poll.pollVotes ?? [];
   const total = votes.length;
   const ended = new Date(Number(poll.endDate) || poll.endDate) < new Date();
@@ -27,14 +29,14 @@ function PollCard({ poll, onRemove }: { poll: Poll; onRemove: () => void }) {
         <div>
           <h3 className="text-sm font-medium text-zinc-900">{poll.title}</h3>
           <p className="mt-0.5 text-xs text-zinc-400">
-            {ended ? "Finalizada" : "Abierta"} · hasta {formatDate(poll.endDate)} · {total}{" "}
-            {total === 1 ? "voto" : "votos"}
+            {ended ? t("ended") : t("open")} · {t("until", { date: formatDate(poll.endDate) })} ·{" "}
+            {t("voteCount", { count: total })}
           </p>
         </div>
         <button
           onClick={onRemove}
           className="rounded-lg p-1.5 text-zinc-300 transition-colors hover:bg-red-50 hover:text-red-500"
-          title="Eliminar encuesta"
+          title={t("deletePoll")}
         >
           <Trash2 size={15} strokeWidth={1.5} />
         </button>
@@ -44,7 +46,7 @@ function PollCard({ poll, onRemove }: { poll: Poll; onRemove: () => void }) {
           const count = votes.filter((vote) => vote.optionSelected === option).length;
           const percentage = total === 0 ? 0 : Math.round((count / total) * 100);
           return (
-            <li key={option} title={`${option}: ${count} votos (${percentage}%)`}>
+            <li key={option} title={t("optionTitle", { option, count, percentage })}>
               <div className="mb-1 flex items-baseline justify-between text-sm">
                 <span className="text-zinc-600">{option}</span>
                 <span className="tabular-nums text-zinc-400">
@@ -63,6 +65,7 @@ function PollCard({ poll, onRemove }: { poll: Poll; onRemove: () => void }) {
 }
 
 export default function PollsPage() {
+  const t = useTranslations("polls");
   const toast = useToast();
   const [creating, setCreating] = useState(false);
   const [removing, setRemoving] = useState<Poll | null>(null);
@@ -84,12 +87,12 @@ export default function PollsPage() {
       variables: { poll: { title: form.title, options, endDate: form.endDate } },
     });
     if (result?.createPoll?.success) {
-      toast("Encuesta creada");
+      toast(t("created"));
       setForm({ title: "", options: "", endDate: "" });
       setCreating(false);
       refetch();
     } else {
-      toast(result?.createPoll?.message ?? "No se pudo crear", "error");
+      toast(result?.createPoll?.message ?? t("createFailed"), "error");
     }
   };
 
@@ -97,10 +100,10 @@ export default function PollsPage() {
     if (!removing) return;
     const { data: result } = await removePolls({ variables: { ids: [removing.id] } });
     if (result?.removePolls?.success) {
-      toast("Encuesta eliminada");
+      toast(t("removed"));
       refetch();
     } else {
-      toast(result?.removePolls?.message ?? "No se pudo eliminar", "error");
+      toast(result?.removePolls?.message ?? t("removeFailed"), "error");
     }
     setRemoving(null);
   };
@@ -110,12 +113,12 @@ export default function PollsPage() {
       <PageShell
         header={
           <PageHeader
-            title="Encuestas"
-            subtitle="Consultas a los miembros y resultados"
+            title={t("title")}
+            subtitle={t("subtitle")}
             actions={
               <Button variant="primary" onClick={() => setCreating(true)}>
                 <Plus size={15} strokeWidth={1.5} />
-                Nueva encuesta
+                {t("newPoll")}
               </Button>
             }
           />
@@ -128,7 +131,7 @@ export default function PollsPage() {
           </div>
         ) : polls.length === 0 ? (
           <p className="rounded-xl border border-dashed border-zinc-200 py-16 text-center text-sm text-zinc-400">
-            Aún no hay encuestas
+            {t("emptyState")}
           </p>
         ) : (
           <div className="grid gap-4 lg:grid-cols-2">
@@ -142,34 +145,34 @@ export default function PollsPage() {
       <SlideOver
         open={creating}
         onClose={() => setCreating(false)}
-        title="Nueva encuesta"
+        title={t("newPoll")}
         footer={
           <>
             <Button variant="ghost" onClick={() => setCreating(false)}>
-              Cancelar
+              {t("cancel")}
             </Button>
             <Button
               variant="primary"
               onClick={handleCreate}
               disabled={createState.loading || !form.title || options.length < 2 || !form.endDate}
             >
-              {createState.loading ? "Creando…" : "Publicar encuesta"}
+              {createState.loading ? t("creating") : t("publish")}
             </Button>
           </>
         }
       >
         <div className="space-y-5">
-          <Field label="Pregunta">
+          <Field label={t("question")}>
             <Input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} />
           </Field>
-          <Field label="Opciones" hint="Una por línea, mínimo dos">
+          <Field label={t("options")} hint={t("optionsHint")}>
             <Textarea
               rows={4}
               value={form.options}
               onChange={(event) => setForm({ ...form, options: event.target.value })}
             />
           </Field>
-          <Field label="Fecha de cierre">
+          <Field label={t("closingDate")}>
             <DatePicker
               value={form.endDate}
               onChange={(value) => setForm({ ...form, endDate: value })}
@@ -180,9 +183,9 @@ export default function PollsPage() {
 
       <ConfirmDialog
         open={Boolean(removing)}
-        title="Eliminar encuesta"
-        description={`Se eliminará "${removing?.title}" y todos sus votos.`}
-        confirmLabel="Eliminar"
+        title={t("deletePoll")}
+        description={t("deleteConfirmDescription", { title: removing?.title ?? "" })}
+        confirmLabel={t("delete")}
         danger
         loading={removeState.loading}
         onConfirm={handleRemove}

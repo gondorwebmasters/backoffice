@@ -2,6 +2,7 @@
 
 import { useQuery } from "@apollo/client";
 import { motion } from "framer-motion";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { ActivityOverviewChart } from "@/components/dashboard/activity-overview-chart";
@@ -28,14 +29,9 @@ import {
 } from "@/lib/graphql/stats";
 import type { AdminStats, Invoice, SchedulesStat, SubscriptionsStat } from "@/lib/graphql/types";
 
-function formatEuros(value: number): string {
-  return new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" }).format(value);
+function formatEuros(value: number, locale: string): string {
+  return new Intl.NumberFormat(locale, { style: "currency", currency: "EUR" }).format(value);
 }
-
-const MONTHS = [
-  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
-];
 
 /** Ocupación media (%) de un mes a partir de los ratios por franja. */
 function averageRatio(stats: SchedulesStat[] | undefined): number | null {
@@ -70,8 +66,14 @@ function Card({
   );
 }
 
+const INTL_LOCALE: Record<string, string> = { es: "es-ES", pt: "pt-PT" };
+
 export default function DashboardPage() {
   const { user } = useSession();
+  const t = useTranslations("dashboard");
+  const locale = useLocale();
+  const intlLocale = INTL_LOCALE[locale] ?? locale;
+  const MONTHS = Array.from({ length: 12 }, (_, index) => t(`months.${index}`));
   const [month, setMonth] = useState(new Date().getMonth());
 
   const adminStats = useQuery<{ getAdminStats: { stats: AdminStats | null } }>(GET_ADMIN_STATS);
@@ -101,47 +103,51 @@ export default function DashboardPage() {
     <PageShell
       header={
         <PageHeader
-          title={`Hola${user?.name ? `, ${user.name}` : ""}`}
-          subtitle="Resumen del negocio"
+          title={t("greeting", { name: user?.name ? `, ${user.name}` : "" })}
+          subtitle={t("subtitle")}
         />
       }
     >
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
         <KpiCard
           index={0}
-          label="Miembros"
+          label={t("kpi.members")}
           value={stats?.users.totalUsers ?? "—"}
-          detail={stats ? `${stats.users.newUsers} nuevos · ${stats.users.pendingUsers} pendientes` : undefined}
+          detail={
+            stats
+              ? t("kpi.membersDetail", { newUsers: stats.users.newUsers, pendingUsers: stats.users.pendingUsers })
+              : undefined
+          }
           loading={adminStats.loading && !stats}
         />
         <KpiCard
           index={1}
-          label="Suscripciones"
+          label={t("kpi.subscriptions")}
           value={stats?.subscriptions ?? "—"}
-          detail={stats ? `${stats.plans} planes activos` : undefined}
+          detail={stats ? t("kpi.subscriptionsDetail", { plans: stats.plans }) : undefined}
           loading={adminStats.loading && !stats}
         />
         <KpiCard
           index={2}
-          label="Clases"
+          label={t("kpi.classes")}
           value={stats?.schedules ?? "—"}
-          detail="programadas"
+          detail={t("kpi.classesDetail")}
           loading={adminStats.loading && !stats}
         />
         <KpiCard
           index={3}
-          label="Transacciones"
+          label={t("kpi.transactions")}
           value={stats?.transactions ?? "—"}
-          detail="registradas"
+          detail={t("kpi.transactionsDetail")}
           loading={adminStats.loading && !stats}
         />
         <StatCard
           index={4}
-          label="Ocupación media"
+          label={t("kpi.occupancy")}
           value={currentOccupancy !== null ? `${Math.round(currentOccupancy)}%` : "—"}
           delta={occupancyDelta}
-          deltaLabel="vs mes ant."
-          detail={`en ${MONTHS[month].toLowerCase()}`}
+          deltaLabel={t("kpi.occupancyDeltaLabel")}
+          detail={t("kpi.occupancyDetail", { month: MONTHS[month].toLowerCase() })}
           loading={schedulesStats.loading && !monthlyStats}
         />
       </div>
@@ -149,7 +155,7 @@ export default function DashboardPage() {
       <div className="mt-6 grid gap-6 lg:grid-cols-5">
         <div className="lg:col-span-3">
           <Card
-            title="Ocupación media por franja"
+            title={t("cards.occupancyByTimeSlot")}
             delay={0.15}
             actions={
               <Dropdown
@@ -167,7 +173,7 @@ export default function DashboardPage() {
           </Card>
         </div>
         <div className="lg:col-span-2">
-          <Card title="Miembros por plan" delay={0.2}>
+          <Card title={t("cards.membersByPlan")} delay={0.2}>
             <PlanDistributionChart
               stats={subscriptionsStats.data?.getSubscriptionsStats?.stats ?? []}
               loading={subscriptionsStats.loading && !subscriptionsStats.data}
@@ -178,12 +184,12 @@ export default function DashboardPage() {
 
       <div className="mt-6 grid gap-6 lg:grid-cols-5">
         <div className="lg:col-span-2">
-          <Card title="Estado de miembros" delay={0.25}>
+          <Card title={t("cards.membersStatus")} delay={0.25}>
             <UsersStatusChart users={stats?.users} loading={adminStats.loading && !stats} />
           </Card>
         </div>
         <div className="lg:col-span-3">
-          <Card title="Actividad general" delay={0.3}>
+          <Card title={t("cards.generalActivity")} delay={0.3}>
             <ActivityOverviewChart stats={stats} loading={adminStats.loading && !stats} />
           </Card>
         </div>
@@ -192,43 +198,43 @@ export default function DashboardPage() {
       <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-3">
         <StatCard
           index={0}
-          label="Ingresos totales"
-          value={report ? formatEuros(report.totalRevenue) : "—"}
-          detail="acumulado"
+          label={t("kpi.totalRevenue")}
+          value={report ? formatEuros(report.totalRevenue, intlLocale) : "—"}
+          detail={t("kpi.totalRevenueDetail")}
           loading={reportMetrics.loading && !report}
         />
         <KpiCard
           index={1}
-          label="Productos vendidos"
+          label={t("kpi.productsSold")}
           value={report?.productsSold ?? "—"}
           loading={reportMetrics.loading && !report}
         />
         <KpiCard
           index={2}
-          label="Promociones aplicadas"
+          label={t("kpi.promotionsApplied")}
           value={report?.promotionsApplied ?? "—"}
           loading={reportMetrics.loading && !report}
         />
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <Card title="Altas y bajas por mes" delay={0.3}>
+        <Card title={t("cards.signupsChurn")} delay={0.3}>
           <SignupsChurnChart
             newByMonth={report?.newUsersByMonth ?? []}
             churnedByMonth={report?.churnedUsersByMonth ?? []}
             loading={reportMetrics.loading && !report}
           />
         </Card>
-        <Card title="Clientes por rango de edad" delay={0.35}>
+        <Card title={t("cards.ageRange")} delay={0.35}>
           <AgeRangeChart data={report?.usersByAgeRange ?? []} loading={reportMetrics.loading && !report} />
         </Card>
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <Card title="Progreso de ingresos" delay={0.3}>
+        <Card title={t("cards.revenueTrend")} delay={0.3}>
           <RevenueTrendChart data={report?.revenueByMonth ?? []} loading={reportMetrics.loading && !report} />
         </Card>
-        <Card title="Promociones aplicadas por mes" delay={0.35}>
+        <Card title={t("cards.promotionsByMonth")} delay={0.35}>
           <PromotionsByMonthChart
             data={report?.promotionsAppliedByMonth ?? []}
             loading={reportMetrics.loading && !report}
@@ -237,7 +243,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="mt-6">
-        <Card title="Requiere atención" delay={0.35}>
+        <Card title={t("cards.needsAttention")} delay={0.35}>
           <AttentionList
             overdueInvoices={overdue.data?.getOverdueInvoices?.invoices ?? []}
             pendingUsers={stats?.users.pendingUsers ?? 0}

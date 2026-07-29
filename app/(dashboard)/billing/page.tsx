@@ -2,6 +2,7 @@
 
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { BadgeDot } from "@/components/ui/badge-dot";
@@ -37,6 +38,7 @@ const TRANSACTION_TONES: Record<string, "positive" | "neutral" | "warning" | "ne
 const PAGE_SIZE = 10;
 
 function OverdueInvoices() {
+  const t = useTranslations("billing");
   const toast = useToast();
   const [page, setPage] = useState(0);
   const { data, loading, refetch } = useQuery<{ getOverdueInvoices: { invoices: Invoice[] | null } }>(
@@ -52,21 +54,21 @@ function OverdueInvoices() {
   const columns: Column<Invoice>[] = [
     {
       key: "number",
-      header: "Factura",
+      header: t("columns.invoice"),
       render: (invoice) => (
         <span className="font-medium text-zinc-900">{invoice.invoiceNumber ?? invoice.id.slice(0, 8)}</span>
       ),
     },
-    { key: "member", header: "Miembro", render: (invoice) => <span className="text-zinc-600">{fullName(invoice.user)}</span> },
-    { key: "due", header: "Vencimiento", render: (invoice) => <span className="text-red-600">{formatDate(invoice.dueDate)}</span> },
+    { key: "member", header: t("columns.member"), render: (invoice) => <span className="text-zinc-600">{fullName(invoice.user)}</span> },
+    { key: "due", header: t("columns.dueDate"), render: (invoice) => <span className="text-red-600">{formatDate(invoice.dueDate)}</span> },
     {
       key: "total",
-      header: "Importe",
+      header: t("columns.amount"),
       render: (invoice) => <span className="tabular-nums text-zinc-700">{invoice.formattedTotal}</span>,
     },
     {
       key: "remaining",
-      header: "Pendiente",
+      header: t("columns.remaining"),
       render: (invoice) => (
         <span className="tabular-nums text-zinc-700">{formatCents(invoice.amountRemaining, invoice.currency)}</span>
       ),
@@ -82,10 +84,10 @@ function OverdueInvoices() {
             variant="ghost"
             onClick={(event) => {
               event.stopPropagation();
-              voidInvoice({ variables: { invoiceId: invoice.id } }).then(() => toast("Factura anulada"));
+              voidInvoice({ variables: { invoiceId: invoice.id } }).then(() => toast(t("invoiceVoided")));
             }}
           >
-            Anular
+            {t("void")}
           </Button>
           <Button
             size="sm"
@@ -93,11 +95,11 @@ function OverdueInvoices() {
             onClick={(event) => {
               event.stopPropagation();
               markUncollectible({ variables: { invoiceId: invoice.id } }).then(() =>
-                toast("Marcada como incobrable"),
+                toast(t("markedUncollectible")),
               );
             }}
           >
-            Incobrable
+            {t("uncollectible")}
           </Button>
         </div>
       ),
@@ -111,14 +113,15 @@ function OverdueInvoices() {
         rows={invoices}
         rowKey={(invoice) => invoice.id}
         loading={loading}
-        emptyMessage="No hay facturas vencidas 🎉"
+        emptyMessage={t("noOverdueInvoices")}
       />
-      <Pagination page={page} pageCount={pageCount} onChange={setPage} totalLabel={`${allInvoices.length} facturas`} />
+      <Pagination page={page} pageCount={pageCount} onChange={setPage} totalLabel={t("invoiceTotalLabel", { count: allInvoices.length })} />
     </>
   );
 }
 
 function UserTransactions() {
+  const t = useTranslations("billing");
   const toast = useToast();
   const [search, setSearch] = useState("");
   const [query, setQuery] = useState("");
@@ -155,10 +158,10 @@ function UserTransactions() {
   const rows = allRows.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
 
   const columns: Column<Transaction>[] = [
-    { key: "date", header: "Fecha", render: (transaction) => <span className="text-zinc-600">{formatDateTime(transaction.created_at)}</span> },
+    { key: "date", header: t("columns.date"), render: (transaction) => <span className="text-zinc-600">{formatDateTime(transaction.created_at)}</span> },
     {
       key: "concept",
-      header: "Concepto",
+      header: t("columns.concept"),
       render: (transaction) => (
         <div>
           <p className="text-zinc-700">{transaction.description ?? transaction.type}</p>
@@ -168,14 +171,14 @@ function UserTransactions() {
     },
     {
       key: "amount",
-      header: "Importe",
+      header: t("columns.amount"),
       render: (transaction) => (
         <span className="tabular-nums text-zinc-700">{formatCents(transaction.amount, transaction.currency)}</span>
       ),
     },
     {
       key: "status",
-      header: "Estado",
+      header: t("columns.status"),
       render: (transaction) => (
         <BadgeDot tone={TRANSACTION_TONES[transaction.status] ?? "neutral"} label={transaction.status} />
       ),
@@ -192,12 +195,12 @@ function UserTransactions() {
               variant="ghost"
               onClick={async () => {
                 const { data } = await refund({ variables: { input: { transactionId: transaction.id } } });
-                if (data?.refundTransaction?.success) toast("Reembolso emitido");
-                else toast(data?.refundTransaction?.message ?? "No se pudo reembolsar", "error");
+                if (data?.refundTransaction?.success) toast(t("refundIssued"));
+                else toast(data?.refundTransaction?.message ?? t("refundFailed"), "error");
                 transactions.refetch?.();
               }}
             >
-              Reembolsar
+              {t("refund")}
             </Button>
           ) : null}
           {transaction.status === "failed" ? (
@@ -209,7 +212,7 @@ function UserTransactions() {
                 transactions.refetch?.();
               }}
             >
-              Reintentar
+              {t("retry")}
             </Button>
           ) : null}
         </div>
@@ -222,7 +225,7 @@ function UserTransactions() {
       <div className="relative w-96">
         <Search size={15} strokeWidth={1.5} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
         <Input
-          placeholder="Buscar miembro para ver sus transacciones…"
+          placeholder={t("searchMemberPlaceholder")}
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           className="pl-9"
@@ -247,20 +250,20 @@ function UserTransactions() {
       {selectedUser ? (
         <>
           <p className="text-sm text-zinc-500">
-            Transacciones de <span className="font-medium text-zinc-900">{fullName(selectedUser)}</span>
+            {t("transactionsOf")} <span className="font-medium text-zinc-900">{fullName(selectedUser)}</span>
           </p>
           <DataTable
             columns={columns}
             rows={rows}
             rowKey={(transaction) => transaction.id}
             loading={transactions.loading}
-            emptyMessage="Sin transacciones"
+            emptyMessage={t("noTransactions")}
           />
-          <Pagination page={page} pageCount={pageCount} onChange={setPage} totalLabel={`${allRows.length} transacciones`} />
+          <Pagination page={page} pageCount={pageCount} onChange={setPage} totalLabel={t("transactionTotalLabel", { count: allRows.length })} />
         </>
       ) : (
         <p className="rounded-xl border border-dashed border-zinc-200 py-16 text-center text-sm text-zinc-400">
-          Busca un miembro para consultar su historial de pagos
+          {t("searchMemberHint")}
         </p>
       )}
     </div>
@@ -268,6 +271,7 @@ function UserTransactions() {
 }
 
 export default function BillingPage() {
+  const t = useTranslations("billing");
   const [tab, setTab] = useState("invoices");
 
   return (
@@ -275,12 +279,12 @@ export default function BillingPage() {
       <PageShell
         header={
           <>
-            <PageHeader title="Facturación" subtitle="Facturas vencidas y transacciones" />
+            <PageHeader title={t("title")} subtitle={t("subtitle")} />
             <div className="mb-6">
               <Tabs
                 items={[
-                  { value: "invoices", label: "Facturas vencidas" },
-                  { value: "transactions", label: "Transacciones" },
+                  { value: "invoices", label: t("overdueInvoicesTab") },
+                  { value: "transactions", label: t("transactionsTab") },
                 ]}
                 value={tab}
                 onChange={setTab}

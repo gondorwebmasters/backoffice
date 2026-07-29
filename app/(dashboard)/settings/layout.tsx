@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
@@ -8,19 +9,20 @@ import { PageHeader } from "@/components/ui/page-header";
 import { cn } from "@/lib/cn";
 
 const SETTINGS_TABS = [
-  { href: "/settings", label: "General" },
-  { href: "/settings/finance", label: "Finanzas" },
-  { href: "/settings/onboarding", label: "Onboarding" },
-  { href: "/settings/danger", label: "Zona de peligro" },
-];
+  { href: "/settings", key: "general" },
+  { href: "/settings/finance", key: "finance" },
+  { href: "/settings/onboarding", key: "onboarding" },
+  { href: "/settings/danger", key: "danger" },
+] as const;
 
 export default function SettingsLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const t = useTranslations("settings.layout");
 
   return (
     <>
-      <PageHeader title="Ajustes" subtitle="Configuración y administración de la empresa" />
-      <nav className="mb-8 flex flex-wrap gap-1 rounded-xl bg-zinc-100 p-1 sm:inline-flex" aria-label="Secciones de ajustes">
+      <PageHeader title={t("title")} subtitle={t("subtitle")} />
+      <nav className="mb-8 flex flex-wrap gap-1 rounded-xl bg-zinc-100 p-1 sm:inline-flex" aria-label={t("tabsAriaLabel")}>
         {SETTINGS_TABS.map((tab) => {
           const active = tab.href === "/settings" ? pathname === tab.href : pathname.startsWith(tab.href);
           return (
@@ -36,7 +38,7 @@ export default function SettingsLayout({ children }: { children: ReactNode }) {
                   : "text-zinc-500 hover:text-zinc-700",
               )}
             >
-              {tab.label}
+              {t(`tabs.${tab.key}`)}
             </Link>
           );
         })}
